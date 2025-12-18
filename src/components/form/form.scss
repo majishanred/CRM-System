@@ -1,0 +1,19 @@
+.task-form {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+
+  .form-group {
+    width: 70%;
+
+    input {
+      width: 100%;
+    }
+  }
+}
+
+.task-form_button {
+  margin-left: auto;
+}

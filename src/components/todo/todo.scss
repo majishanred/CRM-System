@@ -1,0 +1,21 @@
+.todo {
+  background-color: #ffffff;
+  display: flex;
+  width: 100%;
+  padding: 16px;
+  flex-direction: row;
+  align-items: center;
+
+  border: 2px solid grey;
+  border-radius: 8px;
+
+  .todo_icon {
+    color: #fff;
+  }
+
+  .todo_buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+  }
+}
