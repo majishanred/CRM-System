@@ -5,6 +5,8 @@
   padding: 16px;
   flex-direction: row;
   align-items: center;
+  gap: 8px;
+  min-height: 84px;
 
   border: 2px solid grey;
   border-radius: 8px;
@@ -17,5 +19,9 @@
     margin-left: auto;
     display: flex;
     gap: 8px;
+  }
+
+  .todo_input {
+    justify-self: stretch;
   }
 }

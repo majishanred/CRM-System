@@ -1,4 +1,4 @@
-import './toggble_tabs.scss';
+import './ToggbleTabs.scss';
 import { useState } from 'react';
 
 type Tab<T> = { text: string } & T;
@@ -21,7 +21,7 @@ export const ToggbleTabs = <T,>({ tabs, onChange }: ToggleTabsProps<T>) => {
               onChange(tab);
             }}
             key={index}
-            className={index === selectedIndex ? 'chosen' : ''}
+            className={index === selectedIndex ? 'toggble_tabs__chosen' : ''}
           >
             {tab.text}
           </button>

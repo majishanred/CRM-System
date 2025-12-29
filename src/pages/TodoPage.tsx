@@ -1,85 +1,61 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { ToDoListInterface } from '../types/todo.types.ts';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { fetchToDo } from '../api/todo/todo.ts';
-import { Form } from '../components/form/form.tsx';
-import { ToggbleTabs } from '../components/toggble_tabs/toggble_tabs.tsx';
-import { ToDo } from '../components/todo/todo.tsx';
-import { List } from '../components/list/list.tsx';
+import { CreateTodoForm } from '../components/CreateTodoForm/CreateTodoForm.tsx';
+import { ToggbleTabs } from '../components/ToggbleTabs/ToggbleTabs.tsx';
+import { ToDo } from '../components/Todo/Todo.tsx';
+import type { MetaResponse } from '../types/meta.ts';
+import type { Todo, TodoInfo } from '../types/todo.types.ts';
 
 export const ToDoPage = () => {
-  const [todoList, setTodoList] = useState<ToDoListInterface>({
+  const [todoData, setTodoData] = useState<MetaResponse<Todo, TodoInfo>>({
     data: [],
     info: { all: 0, inWork: 0, completed: 0 },
     meta: { totalAmount: 0 },
   });
 
-  const tabs = useMemo(() => {
+  const [filter, setFilter] = useState<string>('?filter=all');
+
+  const tabs = useMemo<{ text: string; filter: string }[]>(() => {
     return [
       {
-        text: `Все (${todoList.info?.all || 0})`,
-        fetcher: async (controller: AbortController) =>
-          await fetchToDo({ query: '?filter=all', signal: controller.signal }),
+        text: `Все (${todoData.info?.all || 0})`,
+        filter: '?filter=all',
       },
       {
-        text: `В работе (${todoList.info?.inWork || 0})`,
-        fetcher: async (controller: AbortController) =>
-          await fetchToDo({ query: '?filter=inWork', signal: controller.signal }),
+        text: `В работе (${todoData.info?.inWork || 0})`,
+        filter: '?filter=inWork',
       },
       {
-        text: `Сделано (${todoList.info?.completed || 0})`,
-        fetcher: async (controller: AbortController) =>
-          await fetchToDo({ query: '?filter=completed', signal: controller.signal }),
+        text: `Сделано (${todoData.info?.completed || 0})`,
+        filter: '?filter=completed',
       },
     ];
-  }, [todoList]);
+  }, [todoData]);
 
-  const [fetcher, setFetcher] = useState(() => tabs[0].fetcher);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    const fetchTodos = async () => {
-      const data = await fetcher(controller);
-      if (!data) return;
-      setTodoList(() => data);
-    };
-
-    fetchTodos();
-
-    return () => {
-      controller.abort('Component Unmounted');
-    };
-  }, [fetcher]);
+  const updateTodoData = useCallback(async () => {
+    try {
+      const data = await fetchToDo(filter);
+      setTodoData(() => data);
+    } catch (error) {
+      if (error instanceof Error) alert(error.message);
+    }
+  }, [filter]);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    const eventListener = async () => {
-      const data = await fetcher(controller);
-      if (!data) return;
-      setTodoList(() => data);
+    const asyncFunc = async () => {
+      await updateTodoData();
     };
 
-    window.addEventListener('todoListUpdate', eventListener);
-
-    return () => {
-      controller.abort('Component Unmounted');
-      window.removeEventListener('todoListUpdate', eventListener);
-    };
-  }, [fetcher]);
+    asyncFunc();
+  }, [filter, updateTodoData]);
 
   return (
-    <List className="main-container">
-      <Form />
-      <ToggbleTabs
-        tabs={tabs}
-        onChange={tab => {
-          setFetcher(() => tab.fetcher);
-        }}
-      />
-      {todoList.data.map(item => (
-        <ToDo todo={item} key={item.id} />
+    <div className="main-container">
+      <CreateTodoForm updateTodoData={updateTodoData} />
+      <ToggbleTabs tabs={tabs} onChange={tab => setFilter(() => tab.filter)} />
+      {todoData.data.map(item => (
+        <ToDo todo={item} key={item.id} updateTodoData={updateTodoData} />
       ))}
-    </List>
+    </div>
   );
 };

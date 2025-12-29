@@ -3,9 +3,16 @@ import { ToDoPage } from './pages/TodoPage.tsx';
 
 function App() {
   return (
-    <main>
+    <>
+      <header className="header">
+        <h1>ToDo List</h1>
+      </header>
       <ToDoPage />
-    </main>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+        rel="stylesheet"
+      />
+    </>
   );
 }
 
