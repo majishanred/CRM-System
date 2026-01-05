@@ -1,10 +1,10 @@
 import './Todo.scss';
-import { type ChangeEvent, type FormEvent, useRef, useState } from 'react';
+import { useState } from 'react';
 import { deleteToDo, updateToDo } from '../../api/todo/todo.ts';
 import type { Todo, TodoRequest } from '../../types/todo.ts';
 import { Button } from '../../ui/Button/Button.tsx';
-import { Input } from '../../ui/Input/Input.tsx';
-import { getTodoValidationMessage } from '../../utils/todo.ts';
+import { Checkbox, Form, Typography, Input, Flex } from 'antd';
+import { useForm } from 'antd/es/form/Form';
 
 type ToDoProps = {
   todo: Todo;
@@ -12,21 +12,11 @@ type ToDoProps = {
 };
 
 export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
+  const [form] = useForm<{ title: string }>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  const onTodoChange = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const data: TodoRequest = Object.fromEntries(new FormData(e.currentTarget));
-
-    const validationMessage = getTodoValidationMessage(inputRef.current?.value);
-
-    if (validationMessage) {
-      inputRef.current?.setCustomValidity(validationMessage);
-      inputRef.current?.reportValidity();
-      return;
-    }
+  const onTodoChange = async ({ title }: { title: string }) => {
+    const data: TodoRequest = { ...todo, title };
 
     try {
       await updateToDo(todo.id, data);
@@ -41,6 +31,7 @@ export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
 
   const onTodoStatusChange = async () => {
     const data = { ...todo, isDone: !todo.isDone };
+
     try {
       await updateToDo(todo.id, data);
       await updateTodoData();
@@ -62,54 +53,70 @@ export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
     }
   };
 
-  const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.target.setCustomValidity('');
-    e.target.reportValidity();
-  };
-
   return (
     <>
-      {!isEditing ? (
+      {isEditing ? (
+        <Form
+          form={form}
+          className="todo"
+          onFinish={onTodoChange}
+          onReset={() => setIsEditing(false)}
+          initialValues={{
+            title: todo.title,
+          }}
+          variant="outlined"
+          validateTrigger="onChange"
+        >
+          <Form.Item
+            name="title"
+            rules={[
+              { required: true, message: 'Введите название задачи' },
+              { min: 2, message: 'Минимальное количество символов - 2' },
+              { max: 64, message: 'Максимальное количество символов - 64' },
+              {
+                message: 'Текст задачи не может состоять только из пробелов',
+                validator: (_, value: string) => {
+                  if (value.length > 1 && !value.trim()) {
+                    return Promise.reject(
+                      new Error('Текст задачи не может состоять только из пробелов')
+                    );
+                  } else {
+                    return Promise.resolve();
+                  }
+                },
+              },
+            ]}
+            validateTrigger={'onChange'}
+            style={{ flex: 1, marginRight: '8px', marginBottom: 0 }}
+          >
+            <Input type="text" aria-required="true" />
+          </Form.Item>
+          <Flex gap="8px" style={{ marginLeft: 'auto' }}>
+            <Form.Item noStyle>
+              <Button type="primary" htmlType="submit">
+                <span className="material-symbols-outlined">check</span>
+              </Button>
+            </Form.Item>
+            <Form.Item noStyle>
+              <Button type="primary" htmlType="reset">
+                <span className="material-symbols-outlined">close</span>
+              </Button>
+            </Form.Item>
+          </Flex>
+        </Form>
+      ) : (
         <div className="todo">
-          <Input
-            type="checkbox"
-            name="isDone"
-            defaultChecked={todo.isDone}
-            onChange={onTodoStatusChange}
-          />
-          <p>{todo.title}</p>
-          <div className="todo_buttons">
-            <Button type="button" onClick={() => setIsEditing(true)} variant="primary">
+          <Checkbox name="isDone" defaultChecked={todo.isDone} onChange={onTodoStatusChange} />
+          <Typography.Paragraph style={{ marginBottom: '0' }}>{todo.title}</Typography.Paragraph>
+          <Flex gap="8px" style={{ marginLeft: 'auto' }}>
+            <Button type="primary" onClick={() => setIsEditing(true)}>
               <span className="material-symbols-outlined todo_icon">edit</span>
             </Button>
-            <Button type="button" onClick={onTodoDelete} variant="danger">
+            <Button type="primary" danger onClick={onTodoDelete}>
               <span className="material-symbols-outlined todo_icon">delete</span>
             </Button>
-          </div>
+          </Flex>
         </div>
-      ) : (
-        <form className="todo" onSubmit={onTodoChange} onReset={() => setIsEditing(false)}>
-          <Input
-            className="todo_input"
-            type="text"
-            id="taskTitle"
-            name="title"
-            placeholder="Введите название задачи"
-            disabled={!isEditing}
-            defaultValue={todo.title}
-            aria-required="true"
-            onChange={onInputChange}
-            ref={inputRef}
-          />
-          <div className="todo_buttons">
-            <Button type="submit" variant="primary">
-              <span className="material-symbols-outlined">check</span>
-            </Button>
-            <Button type="reset" variant="primary">
-              <span className="material-symbols-outlined">close</span>
-            </Button>
-          </div>
-        </form>
       )}
     </>
   );

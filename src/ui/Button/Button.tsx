@@ -1,21 +1,10 @@
 import './Button.scss';
-import type { ButtonHTMLAttributes, DetailedHTMLProps } from 'react';
+import { Button as AntdButton, type ButtonProps } from 'antd';
 
-type IconButtonProps = DetailedHTMLProps<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  HTMLButtonElement
-> & { variant?: 'primary' | 'danger' };
-
-export const Button = ({ variant, ...props }: IconButtonProps) => {
-  const applyClassNames = () => {
-    const classNames: string[] = ['button', props.className || ''];
-    classNames.push(variant || '');
-    return classNames.join(' ');
-  };
-
+export const Button = (props: ButtonProps) => {
   return (
-    <button {...props} className={applyClassNames()}>
+    <AntdButton {...props} className={'button' + (props.className ? ' ' + props.className : '')}>
       {props.children}
-    </button>
+    </AntdButton>
   );
 };
