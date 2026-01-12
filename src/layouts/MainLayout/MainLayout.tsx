@@ -1,3 +1,4 @@
+import './MainLayout.scss';
 import { NavLink, Outlet } from 'react-router';
 import { Layout, Space, Typography } from 'antd';
 import { Content, Header } from 'antd/es/layout/layout';
@@ -9,7 +10,7 @@ export const MainLayout = () => {
       <Sider
         width="15%"
         style={{
-          padding: '24px',
+          padding: '12px 24px',
         }}
         theme="light"
       >
@@ -22,7 +23,7 @@ export const MainLayout = () => {
       <Layout>
         <Header
           style={{
-            textAlign: 'center',
+            placeItems: 'center',
             backgroundColor: 'var(--ant-layout-color-bg-body)',
           }}
         >
