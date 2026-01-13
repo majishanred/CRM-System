@@ -3,7 +3,6 @@
   display: flex;
   width: 100%;
   padding: 16px;
-  flex-direction: row;
   align-items: center;
   gap: 8px;
   min-height: 84px;
@@ -22,6 +21,6 @@
   }
 
   .todo_input {
-    justify-self: stretch;
+    align-self: stretch;
   }
 }

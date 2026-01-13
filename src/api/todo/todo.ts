@@ -1,7 +1,9 @@
 import type { MetaResponse } from '../../types/meta.ts';
-import type { Todo, TodoInfo, TodoRequest } from '../../types/todo.types.ts';
+import type { Todo, TodoFilterParams, TodoInfo, TodoRequest } from '../../types/todo.ts';
 
-export const fetchToDo = async (filter?: string): Promise<MetaResponse<Todo, TodoInfo>> => {
+export const fetchToDo = async (
+  filter?: TodoFilterParams
+): Promise<MetaResponse<Todo, TodoInfo>> => {
   try {
     const response = await fetch('https://easydev.club/api/v1/todos' + (filter || ''), {
       method: 'GET',

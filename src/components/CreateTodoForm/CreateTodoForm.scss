@@ -1,6 +1,5 @@
 .create-todo-form {
   display: flex;
-  flex-direction: row;
   gap: 8px;
   width: 100%;
 
@@ -11,6 +10,6 @@
   }
 
   .create-todo-form_input {
-    justify-self: stretch;
+    flex-grow: 1;
   }
 }
