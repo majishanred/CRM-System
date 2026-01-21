@@ -1,0 +1,16 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  min-width: 560px;
+  gap: 16px;
+}
+
+.header {
+  padding-bottom: 16px;
+}

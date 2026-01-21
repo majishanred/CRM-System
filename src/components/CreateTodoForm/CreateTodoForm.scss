@@ -1,0 +1,15 @@
+.create-todo-form {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+
+  .create-todo-form_button {
+    min-width: auto;
+    margin-left: auto;
+    text-wrap: nowrap;
+  }
+
+  .create-todo-form_input {
+    flex-grow: 1;
+  }
+}

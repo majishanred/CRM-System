@@ -1,0 +1,26 @@
+.todo {
+  background-color: #ffffff;
+  display: flex;
+  width: 100%;
+  padding: 16px;
+  align-items: center;
+  gap: 8px;
+  min-height: 84px;
+
+  border: 2px solid grey;
+  border-radius: 8px;
+
+  .todo_icon {
+    color: #fff;
+  }
+
+  .todo_buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+  }
+
+  .todo_input {
+    align-self: stretch;
+  }
+}
