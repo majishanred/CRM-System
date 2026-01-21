@@ -5,9 +5,12 @@ export const fetchToDo = async (
   filter?: TodoFilterParams
 ): Promise<MetaResponse<Todo, TodoInfo>> => {
   try {
-    const response = await fetch('https://easydev.club/api/v1/todos' + (filter || ''), {
-      method: 'GET',
-    });
+    const response = await fetch(
+      'https://easydev.club/api/v1/todos' + (filter ? `?filter=${filter}` : ''),
+      {
+        method: 'GET',
+      }
+    );
 
     const data: MetaResponse<Todo, TodoInfo> = await response.json();
 

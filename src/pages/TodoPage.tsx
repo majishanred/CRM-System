@@ -13,20 +13,20 @@ export const ToDoPage = () => {
     meta: { totalAmount: 0 },
   });
 
-  const [filter, setFilter] = useState<TodoFilterParams>('?filter=all');
+  const [filter, setFilter] = useState<TodoFilterParams>('all');
 
   const tabs: { text: string; filter: TodoFilterParams }[] = [
     {
       text: `Все (${todoData.info?.all || 0})`,
-      filter: '?filter=all',
+      filter: 'all',
     },
     {
       text: `В работе (${todoData.info?.inWork || 0})`,
-      filter: '?filter=inWork',
+      filter: 'inWork',
     },
     {
       text: `Сделано (${todoData.info?.completed || 0})`,
-      filter: '?filter=completed',
+      filter: 'completed',
     },
   ];
 

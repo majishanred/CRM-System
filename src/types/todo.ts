@@ -3,7 +3,7 @@ export interface TodoRequest {
   isDone?: boolean; // изменение статуса задачи происходит через этот флаг
 }
 
-export type TodoFilterParams = '?filter=completed' | '?filter=inWork' | '?filter=all';
+export type TodoFilterParams = 'completed' | 'inWork' | 'all';
 
 export interface Todo {
   id: number;
