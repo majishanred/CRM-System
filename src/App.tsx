@@ -10,6 +10,10 @@ import { rootStore } from './store/rootStore.ts';
 import { Provider } from 'react-redux';
 import { WithUnauthorizedRedirect } from './components/WithUnauthorizedRedirect/WithUnauthorizedRedirect.tsx';
 import { AuthInitializer } from './components/AuthInitializer/AuthInitializer.tsx';
+import { UsersPage } from './pages/UsersPage/UsersPage.tsx';
+import { EditUserPage } from './pages/EditUserPage/EditUserPage.tsx';
+import EditUserLayout from './layouts/UserEditLayout/EditUserLayout.tsx';
+import { WithoutAdminRightsRedirect } from './components/WithoutAdminRightsRedirect/WithoutAdminRightsRedirect.tsx';
 
 const router = createBrowserRouter([
   {
@@ -37,6 +41,45 @@ const router = createBrowserRouter([
         Component: SignUpPage,
       },
       { path: '/user/signin', Component: SignInPage },
+    ],
+  },
+  {
+    path: '/admin',
+    children: [
+      {
+        element: (
+          <WithUnauthorizedRedirect>
+            <WithoutAdminRightsRedirect>
+              <MainLayout />
+            </WithoutAdminRightsRedirect>
+          </WithUnauthorizedRedirect>
+        ),
+        children: [
+          {
+            path: 'users',
+            Component: UsersPage,
+          },
+        ],
+      },
+      {
+        element: (
+          <WithUnauthorizedRedirect>
+            <WithoutAdminRightsRedirect>
+              <EditUserLayout />
+            </WithoutAdminRightsRedirect>
+          </WithUnauthorizedRedirect>
+        ),
+        path: 'user/:id',
+        children: [
+          {
+            index: true,
+            loader: ({ params }) => {
+              return { userId: params.id };
+            },
+            Component: EditUserPage,
+          },
+        ],
+      },
     ],
   },
 ]);
