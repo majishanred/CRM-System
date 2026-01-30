@@ -16,6 +16,16 @@ import {
 import type { Profile } from '../../types/auth.ts';
 import type { MetaResponse } from '../../types/meta.ts';
 import type { Todo, TodoInfo } from '../../types/todo.ts';
+import {
+  blockUserAction,
+  changeUserRightsAction,
+  deleteUserAction,
+  getUserAction,
+  getUsersAction,
+  unblockUserAction,
+  updateUserAction,
+} from '../admin/actions.ts';
+import type { User, MetaResponse as AdminMetaResponse } from '../../types/admin.ts';
 
 export const apiSlice = createSlice({
   name: 'api',
@@ -33,6 +43,13 @@ export const apiSlice = createSlice({
     updateTodo: initAsyncParticle(null),
     createTodo: initAsyncParticle(null),
     initAuthorization: initAsyncParticle(null),
+    getUsers: initAsyncParticle<AdminMetaResponse<User> | null>(null),
+    getUser: initAsyncParticle(null),
+    updateUserProfile: initAsyncParticle(null),
+    deleteUser: initAsyncParticle(null),
+    changeUserRights: initAsyncParticle(null),
+    blockUser: initAsyncParticle(null),
+    unblockUser: initAsyncParticle(null),
   },
   reducers: {},
   extraReducers: builder => {
@@ -45,6 +62,13 @@ export const apiSlice = createSlice({
     addAsyncBuilderCases(builder, createTodoAction, 'createTodo');
     addAsyncBuilderCases(builder, getProfileAction, 'getProfile');
     addAsyncBuilderCases(builder, initAuthorization, 'initAuthorization');
+    addAsyncBuilderCases(builder, getUsersAction, 'getUsers');
+    addAsyncBuilderCases(builder, getUserAction, 'getUser');
+    addAsyncBuilderCases(builder, updateUserAction, 'updateUserProfile');
+    addAsyncBuilderCases(builder, deleteUserAction, 'deleteUser');
+    addAsyncBuilderCases(builder, changeUserRightsAction, 'changeUserRights');
+    addAsyncBuilderCases(builder, blockUserAction, 'blockUser');
+    addAsyncBuilderCases(builder, unblockUserAction, 'unblockUser');
   },
 });
 
