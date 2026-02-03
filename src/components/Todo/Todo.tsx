@@ -2,18 +2,21 @@ import './Todo.scss';
 import { useState } from 'react';
 import { deleteToDo, updateToDo } from '../../api/todo/todo.ts';
 import type { Todo, TodoRequest } from '../../types/todo.ts';
-import { Button } from '../../ui/Button/Button.tsx';
-import { Checkbox, Form, Typography, Input, Flex } from 'antd';
+import { Button, Checkbox, Form, Input, notification, Space, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
+import { isAxiosError } from 'axios';
+import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons';
+import { todoTitleMaxLength, todoTitleMinLength } from '../../const/todo.ts';
 
-type ToDoProps = {
+type Props = {
   todo: Todo;
   updateTodoData: () => Promise<void>;
 };
 
-export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
+export const ToDo = ({ todo, updateTodoData }: Props) => {
   const [form] = useForm<{ title: string }>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [api] = notification.useNotification();
 
   const onTodoChange = async ({ title }: { title: string }) => {
     const data: TodoRequest = { ...todo, title };
@@ -23,8 +26,12 @@ export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
       await updateTodoData();
       setIsEditing(false);
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
+      if (isAxiosError(error)) {
+        api.error({
+          title: `Ошибка ${error.code}`,
+          description: error.message,
+          placement: 'bottomRight',
+        });
       }
     }
   };
@@ -36,8 +43,12 @@ export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
       await updateToDo(todo.id, data);
       await updateTodoData();
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
+      if (isAxiosError(error)) {
+        api.error({
+          title: `Ошибка ${error.code}`,
+          description: error.message,
+          placement: 'bottomRight',
+        });
       }
     }
   };
@@ -47,8 +58,12 @@ export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
       await deleteToDo(todo.id);
       await updateTodoData();
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
+      if (isAxiosError(error)) {
+        api.error({
+          title: `Ошибка ${error.code}`,
+          description: error.message,
+          placement: 'bottomRight',
+        });
       }
     }
   };
@@ -71,8 +86,8 @@ export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
             name="title"
             rules={[
               { required: true, message: 'Введите название задачи' },
-              { min: 2, message: 'Минимальное количество символов - 2' },
-              { max: 64, message: 'Максимальное количество символов - 64' },
+              { min: todoTitleMinLength, message: 'Минимальное количество символов - 2' },
+              { max: todoTitleMaxLength, message: 'Максимальное количество символов - 64' },
               {
                 message: 'Текст задачи не может состоять только из пробелов',
                 validator: (_, value: string) => {
@@ -86,36 +101,36 @@ export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
                 },
               },
             ]}
-            validateTrigger={'onChange'}
+            validateTrigger={'onSubmit'}
             style={{ flex: 1, marginRight: '8px', marginBottom: 0 }}
           >
             <Input type="text" aria-required="true" />
           </Form.Item>
-          <Flex gap="8px" style={{ marginLeft: 'auto' }}>
+          <Space orientation="horizontal" style={{ marginLeft: 'auto' }}>
             <Form.Item noStyle>
-              <Button type="primary" htmlType="submit">
-                <span className="material-symbols-outlined">check</span>
+              <Button type="primary" size="large" htmlType="submit">
+                <CheckOutlined />
               </Button>
             </Form.Item>
             <Form.Item noStyle>
-              <Button type="primary" htmlType="reset">
-                <span className="material-symbols-outlined">close</span>
+              <Button type="primary" size="large" htmlType="reset">
+                <CloseOutlined />
               </Button>
             </Form.Item>
-          </Flex>
+          </Space>
         </Form>
       ) : (
         <div className="todo">
           <Checkbox name="isDone" defaultChecked={todo.isDone} onChange={onTodoStatusChange} />
           <Typography.Paragraph style={{ marginBottom: '0' }}>{todo.title}</Typography.Paragraph>
-          <Flex gap="8px" style={{ marginLeft: 'auto' }}>
-            <Button type="primary" onClick={() => setIsEditing(true)}>
-              <span className="material-symbols-outlined todo_icon">edit</span>
+          <Space orientation="horizontal" style={{ marginLeft: 'auto' }}>
+            <Button type="primary" size="large" onClick={() => setIsEditing(true)}>
+              <EditFilled />
             </Button>
-            <Button type="primary" danger onClick={onTodoDelete}>
-              <span className="material-symbols-outlined todo_icon">delete</span>
+            <Button type="primary" size="large" danger onClick={onTodoDelete}>
+              <DeleteFilled />
             </Button>
-          </Flex>
+          </Space>
         </div>
       )}
     </>

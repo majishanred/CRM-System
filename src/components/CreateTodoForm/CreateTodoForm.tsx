@@ -1,15 +1,17 @@
 import type { TodoRequest } from '../../types/todo.ts';
 import { createToDo } from '../../api/todo/todo.ts';
-import { Button } from '../../ui/Button/Button.tsx';
-import { Form, Input } from 'antd';
+import { Form, Input, notification, Button } from 'antd';
 import { useForm } from 'antd/es/form/Form';
+import { isAxiosError } from 'axios';
+import { todoTitleMaxLength, todoTitleMinLength } from '../../const/todo.ts';
 
-type CreateTodoFormProps = {
+type Props = {
   updateTodoData: () => Promise<void>;
 };
 
-export const CreateTodoForm = ({ updateTodoData }: CreateTodoFormProps) => {
+export const CreateTodoForm = ({ updateTodoData }: Props) => {
   const [form] = useForm<TodoRequest>();
+  const [api] = notification.useNotification();
 
   const onFormSubmit = async (todoData: TodoRequest) => {
     try {
@@ -17,7 +19,13 @@ export const CreateTodoForm = ({ updateTodoData }: CreateTodoFormProps) => {
       await updateTodoData();
       form.resetFields();
     } catch (error) {
-      if (error instanceof Error) alert(error.message);
+      if (isAxiosError(error)) {
+        api.error({
+          title: `Ошибка ${error.code}`,
+          description: error.message,
+          placement: 'bottomRight',
+        });
+      }
     }
   };
 
@@ -45,8 +53,8 @@ export const CreateTodoForm = ({ updateTodoData }: CreateTodoFormProps) => {
         name="title"
         rules={[
           { required: true, message: 'Введите название задачи' },
-          { min: 2, message: 'Минимальное количество символов - 2' },
-          { max: 64, message: 'Максимальное количество символов - 64' },
+          { min: todoTitleMinLength, message: 'Минимальное количество символов - 2' },
+          { max: todoTitleMaxLength, message: 'Максимальное количество символов - 64' },
           {
             message: 'Текст задачи не может состоять только из пробелов',
             validator: (_, value: string) => {
@@ -60,7 +68,7 @@ export const CreateTodoForm = ({ updateTodoData }: CreateTodoFormProps) => {
             },
           },
         ]}
-        validateTrigger={['onChange', 'onBlur']}
+        validateTrigger={'onSubmit'}
         style={{ flex: 1 }}
       >
         <Input type="text" id="taskTitle" placeholder="Введите название задачи" />

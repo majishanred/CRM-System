@@ -1,11 +1,11 @@
-import './TodoPage.scss';
 import { useEffect, useState } from 'react';
 import { fetchToDo } from '../../api/todo/todo.ts';
 import { CreateTodoForm } from '../../components/CreateTodoForm/CreateTodoForm.tsx';
 import { ToDo } from '../../components/Todo/Todo.tsx';
 import type { MetaResponse } from '../../types/meta.ts';
 import type { Todo, TodoFilterParams, TodoInfo } from '../../types/todo.ts';
-import { Flex, Tabs } from 'antd';
+import { Flex, notification, Tabs } from 'antd';
+import { isAxiosError } from 'axios';
 
 export const ToDoPage = () => {
   const [todoData, setTodoData] = useState<MetaResponse<Todo, TodoInfo>>({
@@ -13,6 +13,7 @@ export const ToDoPage = () => {
     info: { all: 0, inWork: 0, completed: 0 },
     meta: { totalAmount: 0 },
   });
+  const [api] = notification.useNotification();
 
   const tabs: { key: string; label: string; filter: TodoFilterParams }[] = [
     {
@@ -39,8 +40,12 @@ export const ToDoPage = () => {
       const data = await fetchToDo(filter);
       setTodoData(() => data);
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
+      if (isAxiosError(error)) {
+        api.error({
+          title: `Ошибка ${error.code}`,
+          description: error.message,
+          placement: 'bottomRight',
+        });
       }
     }
   };
@@ -60,7 +65,7 @@ export const ToDoPage = () => {
   }, [filter]);
 
   return (
-    <Flex orientation="vertical" style={{ maxWidth: '580px', margin: '24px auto', gap: '24px' }}>
+    <Flex orientation="vertical" gap="large" style={{ maxWidth: '580px', margin: '24px auto' }}>
       <CreateTodoForm updateTodoData={updateTodoData} />
       <Tabs
         items={tabs}
