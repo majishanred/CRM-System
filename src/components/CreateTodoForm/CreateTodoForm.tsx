@@ -1,9 +1,10 @@
 import type { TodoRequest } from '../../types/todo.ts';
-import { createToDo } from '../../api/todo/todo.ts';
-import { Form, Input, notification, Button } from 'antd';
+import { createTodo } from '../../api/todo/todo.ts';
+import { Button, Form, Input } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { isAxiosError } from 'axios';
-import { todoTitleMaxLength, todoTitleMinLength } from '../../const/todo.ts';
+import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../const/todo.ts';
+import { useNotification } from '../../hooks/useNotification.ts';
 
 type Props = {
   updateTodoData: () => Promise<void>;
@@ -11,16 +12,16 @@ type Props = {
 
 export const CreateTodoForm = ({ updateTodoData }: Props) => {
   const [form] = useForm<TodoRequest>();
-  const [api] = notification.useNotification();
+  const notificationApi = useNotification();
 
   const onFormSubmit = async (todoData: TodoRequest) => {
     try {
-      await createToDo(todoData);
+      await createTodo(todoData);
       await updateTodoData();
       form.resetFields();
     } catch (error) {
       if (isAxiosError(error)) {
-        api.error({
+        notificationApi.error({
           title: `Ошибка ${error.code}`,
           description: error.message,
           placement: 'bottomRight',
@@ -53,19 +54,11 @@ export const CreateTodoForm = ({ updateTodoData }: Props) => {
         name="title"
         rules={[
           { required: true, message: 'Введите название задачи' },
-          { min: todoTitleMinLength, message: 'Минимальное количество символов - 2' },
-          { max: todoTitleMaxLength, message: 'Максимальное количество символов - 64' },
+          { min: TODO_TITLE_MIN_LENGTH, message: 'Минимальное количество символов - 2' },
+          { max: TODO_TITLE_MAX_LENGTH, message: 'Максимальное количество символов - 64' },
           {
             message: 'Текст задачи не может состоять только из пробелов',
-            validator: (_, value: string) => {
-              if (value.length > 1 && !value.trim()) {
-                return Promise.reject(
-                  new Error('Текст задачи не может состоять только из пробелов')
-                );
-              } else {
-                return Promise.resolve();
-              }
-            },
+            whitespace: true,
           },
         ]}
         validateTrigger={'onSubmit'}

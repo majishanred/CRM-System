@@ -1,12 +1,13 @@
 import './Todo.scss';
 import { useState } from 'react';
-import { deleteToDo, updateToDo } from '../../api/todo/todo.ts';
+import { deleteTodo, updateTodo } from '../../api/todo/todo.ts';
 import type { Todo, TodoRequest } from '../../types/todo.ts';
-import { Button, Checkbox, Form, Input, notification, Space, Typography } from 'antd';
+import { Button, Checkbox, Form, Input, Space, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { isAxiosError } from 'axios';
 import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons';
-import { todoTitleMaxLength, todoTitleMinLength } from '../../const/todo.ts';
+import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../const/todo.ts';
+import { useNotification } from '../../hooks/useNotification.ts';
 
 type Props = {
   todo: Todo;
@@ -16,18 +17,18 @@ type Props = {
 export const ToDo = ({ todo, updateTodoData }: Props) => {
   const [form] = useForm<{ title: string }>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [api] = notification.useNotification();
+  const notificationApi = useNotification();
 
   const onTodoChange = async ({ title }: { title: string }) => {
     const data: TodoRequest = { ...todo, title };
 
     try {
-      await updateToDo(todo.id, data);
+      await updateTodo(todo.id, data);
       await updateTodoData();
       setIsEditing(false);
     } catch (error) {
       if (isAxiosError(error)) {
-        api.error({
+        notificationApi.error({
           title: `Ошибка ${error.code}`,
           description: error.message,
           placement: 'bottomRight',
@@ -40,11 +41,11 @@ export const ToDo = ({ todo, updateTodoData }: Props) => {
     const data = { ...todo, isDone: !todo.isDone };
 
     try {
-      await updateToDo(todo.id, data);
+      await updateTodo(todo.id, data);
       await updateTodoData();
     } catch (error) {
       if (isAxiosError(error)) {
-        api.error({
+        notificationApi.error({
           title: `Ошибка ${error.code}`,
           description: error.message,
           placement: 'bottomRight',
@@ -55,11 +56,11 @@ export const ToDo = ({ todo, updateTodoData }: Props) => {
 
   const onTodoDelete = async () => {
     try {
-      await deleteToDo(todo.id);
+      await deleteTodo(todo.id);
       await updateTodoData();
     } catch (error) {
       if (isAxiosError(error)) {
-        api.error({
+        notificationApi.error({
           title: `Ошибка ${error.code}`,
           description: error.message,
           placement: 'bottomRight',
@@ -86,19 +87,11 @@ export const ToDo = ({ todo, updateTodoData }: Props) => {
             name="title"
             rules={[
               { required: true, message: 'Введите название задачи' },
-              { min: todoTitleMinLength, message: 'Минимальное количество символов - 2' },
-              { max: todoTitleMaxLength, message: 'Максимальное количество символов - 64' },
+              { min: TODO_TITLE_MIN_LENGTH, message: 'Минимальное количество символов - 2' },
+              { max: TODO_TITLE_MAX_LENGTH, message: 'Максимальное количество символов - 64' },
               {
                 message: 'Текст задачи не может состоять только из пробелов',
-                validator: (_, value: string) => {
-                  if (value.length > 1 && !value.trim()) {
-                    return Promise.reject(
-                      new Error('Текст задачи не может состоять только из пробелов')
-                    );
-                  } else {
-                    return Promise.resolve();
-                  }
-                },
+                whitespace: true,
               },
             ]}
             validateTrigger={'onSubmit'}

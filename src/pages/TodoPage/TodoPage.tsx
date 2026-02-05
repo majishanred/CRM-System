@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { fetchToDo } from '../../api/todo/todo.ts';
+import { fetchTodos } from '../../api/todo/todo.ts';
 import { CreateTodoForm } from '../../components/CreateTodoForm/CreateTodoForm.tsx';
 import { ToDo } from '../../components/Todo/Todo.tsx';
 import type { MetaResponse } from '../../types/meta.ts';
 import type { Todo, TodoFilterParams, TodoInfo } from '../../types/todo.ts';
-import { Flex, notification, Tabs } from 'antd';
+import { Flex, Tabs } from 'antd';
 import { isAxiosError } from 'axios';
+import { useNotification } from '../../hooks/useNotification.ts';
 
 export const ToDoPage = () => {
   const [todoData, setTodoData] = useState<MetaResponse<Todo, TodoInfo>>({
@@ -13,7 +14,7 @@ export const ToDoPage = () => {
     info: { all: 0, inWork: 0, completed: 0 },
     meta: { totalAmount: 0 },
   });
-  const [api] = notification.useNotification();
+  const notificationApi = useNotification();
 
   const tabs: { key: string; label: string; filter: TodoFilterParams }[] = [
     {
@@ -37,17 +38,21 @@ export const ToDoPage = () => {
 
   const updateTodoData = async () => {
     try {
-      const data = await fetchToDo(filter);
+      const data = await fetchTodos(filter);
       setTodoData(() => data);
     } catch (error) {
       if (isAxiosError(error)) {
-        api.error({
+        notificationApi.error({
           title: `Ошибка ${error.code}`,
           description: error.message,
           placement: 'bottomRight',
         });
       }
     }
+  };
+
+  const handleTabChange = (key: string) => {
+    setFilter(() => tabs.find(tab => tab.key === key)?.filter || tabs[0].filter);
   };
 
   useEffect(() => {
@@ -67,12 +72,7 @@ export const ToDoPage = () => {
   return (
     <Flex orientation="vertical" gap="large" style={{ maxWidth: '580px', margin: '24px auto' }}>
       <CreateTodoForm updateTodoData={updateTodoData} />
-      <Tabs
-        items={tabs}
-        onChange={key =>
-          setFilter(() => tabs.find(tab => tab.key === key)?.filter || tabs[0].filter)
-        }
-      />
+      <Tabs items={tabs} onChange={handleTabChange} />
       {todoData.data.map(item => (
         <ToDo todo={item} key={item.id} updateTodoData={updateTodoData} />
       ))}

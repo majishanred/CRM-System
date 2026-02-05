@@ -3,7 +3,7 @@ import type { Todo, TodoFilterParams, TodoInfo, TodoRequest } from '../../types/
 import axiosClient from '../axiosClient.ts';
 import type { AxiosResponse } from 'axios';
 
-export const fetchToDo = async (
+export const fetchTodos = async (
   filter?: TodoFilterParams
 ): Promise<MetaResponse<Todo, TodoInfo>> => {
   const response = await axiosClient.get<MetaResponse<Todo, TodoInfo>>('/todos', {
@@ -15,7 +15,7 @@ export const fetchToDo = async (
   return response.data;
 };
 
-export const createToDo = async (todoRequest: TodoRequest): Promise<Todo> => {
+export const createTodo = async (todoRequest: TodoRequest): Promise<Todo> => {
   const response = await axiosClient.post<Todo, AxiosResponse<Todo>, TodoRequest>(
     '/todos',
     todoRequest
@@ -24,7 +24,7 @@ export const createToDo = async (todoRequest: TodoRequest): Promise<Todo> => {
   return response.data;
 };
 
-export const updateToDo = async (todoId: number, todoRequest: TodoRequest) => {
+export const updateTodo = async (todoId: number, todoRequest: TodoRequest) => {
   const response = await axiosClient.put<Todo, AxiosResponse<Todo>, TodoRequest>(
     `/todos/${todoId}`,
     todoRequest
@@ -33,6 +33,6 @@ export const updateToDo = async (todoId: number, todoRequest: TodoRequest) => {
   return response.data;
 };
 
-export const deleteToDo = async (todoId: number) => {
+export const deleteTodo = async (todoId: number) => {
   await axiosClient.delete(`https://easydev.club/api/v1/todos/${todoId}`);
 };
