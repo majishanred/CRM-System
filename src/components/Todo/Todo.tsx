@@ -1,115 +1,130 @@
 import './Todo.scss';
-import { type ChangeEvent, type FormEvent, useRef, useState } from 'react';
-import { deleteToDo, updateToDo } from '../../api/todo/todo.ts';
+import { useState } from 'react';
+import { deleteTodo, updateTodo } from '../../api/todo/todo.ts';
 import type { Todo, TodoRequest } from '../../types/todo.ts';
-import { Button } from '../../ui/Button/Button.tsx';
-import { Input } from '../../ui/Input/Input.tsx';
-import { getTodoValidationMessage } from '../../utils/todo.ts';
+import { Button, Checkbox, Form, Input, Space, Typography } from 'antd';
+import { useForm } from 'antd/es/form/Form';
+import { isAxiosError } from 'axios';
+import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons';
+import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../const/todo.ts';
+import { useNotification } from '../../hooks/useNotification.ts';
 
-type ToDoProps = {
+type Props = {
   todo: Todo;
   updateTodoData: () => Promise<void>;
 };
 
-export const ToDo = ({ todo, updateTodoData }: ToDoProps) => {
+export const ToDo = ({ todo, updateTodoData }: Props) => {
+  const [form] = useForm<{ title: string }>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const notificationApi = useNotification();
 
-  const onTodoChange = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    const data: TodoRequest = Object.fromEntries(new FormData(e.currentTarget));
-
-    const validationMessage = getTodoValidationMessage(inputRef.current?.value);
-
-    if (validationMessage) {
-      inputRef.current?.setCustomValidity(validationMessage);
-      inputRef.current?.reportValidity();
-      return;
-    }
+  const onTodoChange = async ({ title }: { title: string }) => {
+    const data: TodoRequest = { ...todo, title };
 
     try {
-      await updateToDo(todo.id, data);
+      await updateTodo(todo.id, data);
       await updateTodoData();
       setIsEditing(false);
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
+      if (isAxiosError(error)) {
+        notificationApi.error({
+          title: `Ошибка ${error.code}`,
+          description: error.message,
+          placement: 'bottomRight',
+        });
       }
     }
   };
 
   const onTodoStatusChange = async () => {
     const data = { ...todo, isDone: !todo.isDone };
+
     try {
-      await updateToDo(todo.id, data);
+      await updateTodo(todo.id, data);
       await updateTodoData();
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
+      if (isAxiosError(error)) {
+        notificationApi.error({
+          title: `Ошибка ${error.code}`,
+          description: error.message,
+          placement: 'bottomRight',
+        });
       }
     }
   };
 
   const onTodoDelete = async () => {
     try {
-      await deleteToDo(todo.id);
+      await deleteTodo(todo.id);
       await updateTodoData();
     } catch (error) {
-      if (error instanceof Error) {
-        alert(error.message);
+      if (isAxiosError(error)) {
+        notificationApi.error({
+          title: `Ошибка ${error.code}`,
+          description: error.message,
+          placement: 'bottomRight',
+        });
       }
     }
   };
 
-  const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.target.setCustomValidity('');
-    e.target.reportValidity();
-  };
-
   return (
     <>
-      {!isEditing ? (
-        <div className="todo">
-          <Input
-            type="checkbox"
-            name="isDone"
-            defaultChecked={todo.isDone}
-            onChange={onTodoStatusChange}
-          />
-          <p>{todo.title}</p>
-          <div className="todo_buttons">
-            <Button type="button" onClick={() => setIsEditing(true)} variant="primary">
-              <span className="material-symbols-outlined todo_icon">edit</span>
-            </Button>
-            <Button type="button" onClick={onTodoDelete} variant="danger">
-              <span className="material-symbols-outlined todo_icon">delete</span>
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <form className="todo" onSubmit={onTodoChange} onReset={() => setIsEditing(false)}>
-          <Input
-            className="todo_input"
-            type="text"
-            id="taskTitle"
+      {isEditing ? (
+        <Form
+          form={form}
+          className="todo"
+          onFinish={onTodoChange}
+          onReset={() => setIsEditing(false)}
+          initialValues={{
+            title: todo.title,
+          }}
+          variant="outlined"
+          validateTrigger="onChange"
+        >
+          <Form.Item
             name="title"
-            placeholder="Введите название задачи"
-            disabled={!isEditing}
-            defaultValue={todo.title}
-            aria-required="true"
-            onChange={onInputChange}
-            ref={inputRef}
-          />
-          <div className="todo_buttons">
-            <Button type="submit" variant="primary">
-              <span className="material-symbols-outlined">check</span>
+            rules={[
+              { required: true, message: 'Введите название задачи' },
+              { min: TODO_TITLE_MIN_LENGTH, message: 'Минимальное количество символов - 2' },
+              { max: TODO_TITLE_MAX_LENGTH, message: 'Максимальное количество символов - 64' },
+              {
+                message: 'Текст задачи не может состоять только из пробелов',
+                whitespace: true,
+              },
+            ]}
+            validateTrigger={'onSubmit'}
+            style={{ flex: 1, marginRight: '8px', marginBottom: 0 }}
+          >
+            <Input type="text" aria-required="true" />
+          </Form.Item>
+          <Space orientation="horizontal" style={{ marginLeft: 'auto' }}>
+            <Form.Item noStyle>
+              <Button type="primary" size="large" htmlType="submit">
+                <CheckOutlined />
+              </Button>
+            </Form.Item>
+            <Form.Item noStyle>
+              <Button type="primary" size="large" htmlType="reset">
+                <CloseOutlined />
+              </Button>
+            </Form.Item>
+          </Space>
+        </Form>
+      ) : (
+        <div className="todo">
+          <Checkbox name="isDone" defaultChecked={todo.isDone} onChange={onTodoStatusChange} />
+          <Typography.Paragraph style={{ marginBottom: '0' }}>{todo.title}</Typography.Paragraph>
+          <Space orientation="horizontal" style={{ marginLeft: 'auto' }}>
+            <Button type="primary" size="large" onClick={() => setIsEditing(true)}>
+              <EditFilled />
             </Button>
-            <Button type="reset" variant="primary">
-              <span className="material-symbols-outlined">close</span>
+            <Button type="primary" size="large" danger onClick={onTodoDelete}>
+              <DeleteFilled />
             </Button>
-          </div>
-        </form>
+          </Space>
+        </div>
       )}
     </>
   );

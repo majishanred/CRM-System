@@ -1,57 +1,38 @@
 import type { MetaResponse } from '../../types/meta.ts';
 import type { Todo, TodoFilterParams, TodoInfo, TodoRequest } from '../../types/todo.ts';
+import axiosClient from '../axiosClient.ts';
+import type { AxiosResponse } from 'axios';
 
-export const fetchToDo = async (
+export const fetchTodos = async (
   filter?: TodoFilterParams
 ): Promise<MetaResponse<Todo, TodoInfo>> => {
-  try {
-    const response = await fetch(
-      'https://easydev.club/api/v1/todos' + (filter ? `?filter=${filter}` : ''),
-      {
-        method: 'GET',
-      }
-    );
+  const response = await axiosClient.get<MetaResponse<Todo, TodoInfo>>('/todos', {
+    params: {
+      filter,
+    },
+  });
 
-    const data: MetaResponse<Todo, TodoInfo> = await response.json();
-
-    return data;
-  } catch (_e) {
-    throw new Error('Не удалось загрузить данные');
-  }
+  return response.data;
 };
 
-export const createToDo = async (todoRequest: TodoRequest) => {
-  try {
-    const response = await fetch('https://easydev.club/api/v1/todos', {
-      method: 'POST',
-      body: JSON.stringify(todoRequest),
-    });
+export const createTodo = async (todoRequest: TodoRequest): Promise<Todo> => {
+  const response = await axiosClient.post<Todo, AxiosResponse<Todo>, TodoRequest>(
+    '/todos',
+    todoRequest
+  );
 
-    return await response.json();
-  } catch (_e) {
-    throw new Error('Не удалось загрузить данные');
-  }
+  return response.data;
 };
 
-export const updateToDo = async (todoId: number, todoRequest: TodoRequest) => {
-  try {
-    const response = await fetch(`https://easydev.club/api/v1/todos/${todoId}`, {
-      method: 'PUT',
-      body: JSON.stringify(todoRequest),
-    });
+export const updateTodo = async (todoId: number, todoRequest: TodoRequest) => {
+  const response = await axiosClient.put<Todo, AxiosResponse<Todo>, TodoRequest>(
+    `/todos/${todoId}`,
+    todoRequest
+  );
 
-    return await response.json();
-  } catch (error) {
-    throw new Error('Не удалось загрузить данные');
-  }
+  return response.data;
 };
 
-export const deleteToDo = async (todoId: number) => {
-  try {
-    await fetch(`https://easydev.club/api/v1/todos/${todoId}`, {
-      method: 'DELETE',
-    });
-  } catch (_e) {
-    throw new Error('Не удалось загрузить данные');
-  }
+export const deleteTodo = async (todoId: number) => {
+  await axiosClient.delete(`https://easydev.club/api/v1/todos/${todoId}`);
 };
