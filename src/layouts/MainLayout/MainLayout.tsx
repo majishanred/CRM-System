@@ -1,24 +1,32 @@
 import './MainLayout.scss';
 import { NavLink, Outlet } from 'react-router';
-import { Layout, Space, Typography } from 'antd';
+import { Layout, Menu, Typography } from 'antd';
 import { Content, Header } from 'antd/es/layout/layout';
 import Sider from 'antd/es/layout/Sider';
+import type { MenuItemType } from 'antd/es/menu/interface';
+import { UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
+
+const items: MenuItemType[] = [
+  {
+    key: '0',
+    label: <NavLink to={'/'}>Список задач</NavLink>,
+    icon: <UnorderedListOutlined />,
+  },
+  {
+    key: '1',
+    label: <NavLink to={'/profile'}>Профиль</NavLink>,
+    icon: <UserOutlined />,
+  },
+];
 
 export const MainLayout = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider
-        width="15%"
-        style={{
-          padding: '12px 24px',
-        }}
-        theme="light"
-      >
-        <Space orientation="vertical">
+      <Sider theme="light">
+        <div style={{ padding: '12px' }}>
           <Typography.Title level={2}>Навигация</Typography.Title>
-          <NavLink to={'/'}>Список задач</NavLink>
-          <NavLink to={'/profile'}>Профиль</NavLink>
-        </Space>
+        </div>
+        <Menu theme="light" defaultSelectedKeys={['0']} mode="inline" items={items} />
       </Sider>
       <Layout>
         <Header

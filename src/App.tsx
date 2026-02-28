@@ -1,25 +1,23 @@
 import { ToDoPage } from './pages/TodoPage/TodoPage.tsx';
-import { createBrowserRouter, redirect, RouterProvider } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 import { ProfilePage } from './pages/ProfilePage/ProfilePage.tsx';
 import { MainLayout } from './layouts/MainLayout/MainLayout.tsx';
 import { NotificationProvider } from './contexts/notification/provider.tsx';
 import AuthLayout from './layouts/AuthLayout/AuthLayout.tsx';
+import { SignUpPage } from './pages/SignUpPage/SignUpPage.tsx';
 import { SignInPage } from './pages/SignInPage/SignInPage.tsx';
-import { LogInPage } from './pages/LogInPage/LogInPage.tsx';
 import { rootStore } from './store/rootStore.ts';
 import { Provider } from 'react-redux';
-import { withUnauthorizedRedirect } from './components/WithUnauthorizedRedirect/WithUnauthorizedRedirect.tsx';
-
-const authMiddleware = async () => {
-  if (!rootStore.getState().user.isAuthorized) {
-    throw redirect('/user/login');
-  }
-};
+import { WithUnauthorizedRedirect } from './components/WithUnauthorizedRedirect/WithUnauthorizedRedirect.tsx';
+import { AuthInitializer } from './components/AuthInitializer/AuthInitializer.tsx';
 
 const router = createBrowserRouter([
   {
-    middleware: [authMiddleware],
-    Component: withUnauthorizedRedirect(MainLayout),
+    element: (
+      <WithUnauthorizedRedirect>
+        <MainLayout />
+      </WithUnauthorizedRedirect>
+    ),
     children: [
       {
         path: '/',
@@ -35,10 +33,10 @@ const router = createBrowserRouter([
     Component: AuthLayout,
     children: [
       {
-        path: '/user/signin',
-        Component: SignInPage,
+        path: '/user/signup',
+        Component: SignUpPage,
       },
-      { path: '/user/login', Component: LogInPage },
+      { path: '/user/signin', Component: SignInPage },
     ],
   },
 ]);
@@ -48,7 +46,9 @@ function App() {
     <>
       <Provider store={rootStore}>
         <NotificationProvider>
-          <RouterProvider router={router} />
+          <AuthInitializer>
+            <RouterProvider router={router} />
+          </AuthInitializer>
         </NotificationProvider>
       </Provider>
     </>

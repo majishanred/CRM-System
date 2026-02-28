@@ -1,50 +1,46 @@
-import type { Profile, ProfileRequest } from '../../types/auth.ts';
-import { useEffect, useState } from 'react';
-import { isAxiosError } from 'axios';
+import type { ProfileRequest } from '../../types/auth.ts';
+import { useEffect } from 'react';
 import { Button, Flex, Form, Input, Typography } from 'antd';
-import { fetchProfile } from '../../api/user/user.ts';
 import { useForm } from 'antd/es/form/Form';
-import { useNavigate } from 'react-router';
-import AuthService from '../../services/auth.ts';
 import { useNotification } from '../../hooks/useNotification.ts';
+import { getProfile, logoutUser } from '../../store/user/actions.ts';
+import { useAppDispatch } from '../../store/rootStore.ts';
+import { useSelector } from 'react-redux';
+import { logoutUserSelector, getProfileSelector } from '../../store/api/selectors/user.ts';
 
 export const ProfileCard = () => {
-  const navigate = useNavigate();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const dispatch = useAppDispatch();
   const [form] = useForm<ProfileRequest>();
   const notificationApi = useNotification();
+  const { error: logoutError } = useSelector(logoutUserSelector);
+  const { data: profile, error: profileError } = useSelector(getProfileSelector);
 
   const handleLogout = async () => {
-    try {
-      await AuthService.logout();
-    } finally {
-      navigate('/user/login');
-    }
+    await dispatch(logoutUser());
   };
 
   useEffect(() => {
-    const getProfile = async () => {
-      try {
-        const profileData = await fetchProfile();
-        setProfile(profileData);
-        form.setFieldsValue({
-          username: profileData.username,
-          email: profileData.email,
-          phoneNumber: profileData.phoneNumber,
-        });
-      } catch (error) {
-        if (isAxiosError(error)) {
-          notificationApi.error({
-            title: `Ошибка ${error.code}`,
-            description: error.message,
-            placement: 'bottomRight',
-          });
-        }
-      }
-    };
-
-    getProfile();
+    dispatch(getProfile());
   }, []);
+
+  useEffect(() => {
+    [logoutError, profileError].forEach(error => {
+      if (!error) return;
+      notificationApi.error({
+        title: `Ошибка ${error.code}`,
+        description: error.message,
+        placement: 'bottomRight',
+      });
+    });
+  }, [logoutError, profileError]);
+
+  useEffect(() => {
+    form.setFieldsValue({
+      username: profile?.username,
+      email: profile?.email,
+      phoneNumber: profile?.phoneNumber,
+    });
+  }, [profile]);
 
   return (
     <Flex gap="8px" orientation="vertical" flex={1}>

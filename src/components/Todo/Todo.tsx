@@ -1,12 +1,14 @@
 import './Todo.scss';
-import { useState } from 'react';
-import { deleteTodo, updateTodo } from '../../api/todo/todo.ts';
+import { useEffect, useState } from 'react';
 import type { Todo, TodoRequest } from '../../types/todo.ts';
 import { Button, Checkbox, Form, Input, Space, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { isAxiosError } from 'axios';
 import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons';
 import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../const/todo.ts';
+import { useAppDispatch } from '../../store/rootStore.ts';
+import { deleteTodo, updateTodo } from '../../store/todo/actions.ts';
+import { useSelector } from 'react-redux';
+import { deleteTodoSelector, updateTodoSelector } from '../../store/api/selectors/todo.ts';
 import { useNotification } from '../../hooks/useNotification.ts';
 
 type Props = {
@@ -17,57 +19,41 @@ type Props = {
 export const ToDo = ({ todo, updateTodoData }: Props) => {
   const [form] = useForm<{ title: string }>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const { error: updateTodoError } = useSelector(updateTodoSelector);
+  const { error: deleteTodoError } = useSelector(deleteTodoSelector);
   const notificationApi = useNotification();
 
   const onTodoChange = async ({ title }: { title: string }) => {
     const data: TodoRequest = { ...todo, title };
 
-    try {
-      await updateTodo(todo.id, data);
-      await updateTodoData();
-      setIsEditing(false);
-    } catch (error) {
-      if (isAxiosError(error)) {
-        notificationApi.error({
-          title: `Ошибка ${error.code}`,
-          description: error.message,
-          placement: 'bottomRight',
-        });
-      }
-    }
+    await dispatch(updateTodo({ todoId: todo.id, todoData: data }));
+    await updateTodoData();
+    setIsEditing(false);
   };
 
   const onTodoStatusChange = async () => {
     const data = { ...todo, isDone: !todo.isDone };
 
-    try {
-      await updateTodo(todo.id, data);
-      await updateTodoData();
-    } catch (error) {
-      if (isAxiosError(error)) {
-        notificationApi.error({
-          title: `Ошибка ${error.code}`,
-          description: error.message,
-          placement: 'bottomRight',
-        });
-      }
-    }
+    await dispatch(updateTodo({ todoId: todo.id, todoData: data }));
+    await updateTodoData();
   };
 
   const onTodoDelete = async () => {
-    try {
-      await deleteTodo(todo.id);
-      await updateTodoData();
-    } catch (error) {
-      if (isAxiosError(error)) {
-        notificationApi.error({
-          title: `Ошибка ${error.code}`,
-          description: error.message,
-          placement: 'bottomRight',
-        });
-      }
-    }
+    await dispatch(deleteTodo(todo.id));
+    await updateTodoData();
   };
+
+  useEffect(() => {
+    [updateTodoError, deleteTodoError].forEach(error => {
+      if (!error) return;
+      notificationApi.error({
+        title: `Ошибка ${error.code}`,
+        description: error.message,
+        placement: 'bottomRight',
+      });
+    });
+  }, []);
 
   return (
     <>

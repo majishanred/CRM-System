@@ -6,15 +6,12 @@ export const userSlice = createSlice({
     isAuthorized: false,
   },
   reducers: {
-    loginUser: state => {
-      state.isAuthorized = true;
-    },
-    logoutUser: state => {
-      state.isAuthorized = false;
+    setIsAuthorized: (state, action: { payload: boolean }) => {
+      state.isAuthorized = action.payload;
     },
   },
 });
 
 export type UserStore = ReturnType<typeof userSlice.reducer>;
 
-export const { loginUser, logoutUser } = userSlice.actions;
+export const { setIsAuthorized } = userSlice.actions;

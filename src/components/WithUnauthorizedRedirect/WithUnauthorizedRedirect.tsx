@@ -1,21 +1,21 @@
 import { useSelector } from 'react-redux';
-import { type ComponentType, type JSX, useEffect } from 'react';
+import { type PropsWithChildren, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { userSelector } from '../../store/user/selectors.ts';
+import { initAuthorizationSelector } from '../../store/api/selectors/user.ts';
 
-export const withUnauthorizedRedirect = <P extends JSX.IntrinsicAttributes>(
-  Component: ComponentType<P>
-) => {
-  return (props: P) => {
-    const { isAuthorized } = useSelector(userSelector);
-    const navigate = useNavigate();
+export const WithUnauthorizedRedirect = ({ children }: PropsWithChildren) => {
+  const { status } = useSelector(initAuthorizationSelector);
+  const { isAuthorized } = useSelector(userSelector);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-      if (!isAuthorized) {
-        navigate('/user/login');
-      }
-    }, [isAuthorized]);
+  useEffect(() => {
+    if (!isAuthorized && (status === 'fulfilled' || status === 'rejected')) {
+      navigate('/user/signin');
+    }
+  }, [isAuthorized]);
 
-    return <Component {...props} />;
-  };
+  if (!isAuthorized) return null;
+
+  return <>{children}</>;
 };
