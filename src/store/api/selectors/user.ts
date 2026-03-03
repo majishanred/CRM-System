@@ -12,9 +12,8 @@ export const logoutUserSelector = createSelector(
   (state: ApiStore) => state.logoutUser
 );
 
-export const signUpUserSelector = createSelector(
-  apiSelector,
-  (state: ApiStore) => state.signUpUser
+export const signUpUserSelector = createSelector(apiSelector, (state: ApiStore) =>
+  getAsyncRequestData(state.signUpUser)
 );
 
 export const getProfileSelector = createSelector(apiSelector, (state: ApiStore) =>

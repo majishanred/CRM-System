@@ -27,7 +27,7 @@ export const addAsyncBuilderCases = <TState, RQ, RS>(
   });
   builder.addCase(sliceMethod.rejected, (state: Draft<TState>, action) => {
     // @ts-expect-error Не стакаются типы TState и Draft<TState>
-    state[key].error = action.payload;
+    state[key].error = JSON.parse(action.payload);
     // @ts-expect-error Не стакаются типы TState и Draft<TState>
     state[key].errorCounter = (state[key].errorCounter ?? 0) + 1;
     // @ts-expect-error Не стакаются типы TState и Draft<TState>

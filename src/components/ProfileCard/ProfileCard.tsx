@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Button, Flex, Form, Input, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import { useNotification } from '../../hooks/useNotification.ts';
-import { getProfile, logoutUser } from '../../store/user/actions.ts';
+import { getProfileAction, logoutUserAction } from '../../store/user/actions.ts';
 import { useAppDispatch } from '../../store/rootStore.ts';
 import { useSelector } from 'react-redux';
 import { logoutUserSelector, getProfileSelector } from '../../store/api/selectors/user.ts';
@@ -16,19 +16,19 @@ export const ProfileCard = () => {
   const { data: profile, error: profileError } = useSelector(getProfileSelector);
 
   const handleLogout = async () => {
-    await dispatch(logoutUser());
+    await dispatch(logoutUserAction());
   };
 
   useEffect(() => {
-    dispatch(getProfile());
+    dispatch(getProfileAction());
   }, []);
 
   useEffect(() => {
     [logoutError, profileError].forEach(error => {
       if (!error) return;
       notificationApi.error({
-        title: `Ошибка ${error.code}`,
-        description: error.message,
+        title: `Ошибка`,
+        description: 'Произошла ошибка',
         placement: 'bottomRight',
       });
     });

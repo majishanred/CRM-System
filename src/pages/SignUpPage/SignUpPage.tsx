@@ -1,7 +1,7 @@
 import { Button, Divider, Flex, Form, Input, Modal, Space, Typography } from 'antd';
 import { useForm } from 'antd/es/form/Form';
 import type { UserRegistration } from '../../types/auth.ts';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { NavLink } from 'react-router';
 import {
   USER_LOGIN_MAX_LENGTH,
@@ -15,7 +15,7 @@ import {
   USERNAME_PATTERN,
 } from '../../const/user.ts';
 import { useNotification } from '../../hooks/useNotification.ts';
-import { signUpUser } from '../../store/user/actions.ts';
+import { signUpUserAction } from '../../store/user/actions.ts';
 import { useAppDispatch } from '../../store/rootStore.ts';
 import { useSelector } from 'react-redux';
 import { signUpUserSelector } from '../../store/api/selectors/user.ts';
@@ -27,29 +27,31 @@ type UserRegistrationData = UserRegistration & {
 
 export const SignUpPage = () => {
   const [form] = useForm<UserRegistrationData>();
-  const { error } = useSelector(signUpUserSelector);
+  const {
+    error,
+    status: { isLoading, isLoaded },
+  } = useSelector(signUpUserSelector);
   const dispatch = useAppDispatch();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [modalApi, contextHolder] = Modal.useModal();
   const notificationApi = useNotification();
 
   const handleSubmit = async (userData: Omit<UserRegistrationData, 'confirmPassword'>) => {
-    try {
-      setIsLoading(true);
+    const { login, username, email, password, phoneNumber = '', phoneNumberPrefix } = userData;
 
-      const { login, username, email, password, phoneNumber = '', phoneNumberPrefix } = userData;
+    await dispatch(
+      signUpUserAction({
+        login,
+        username,
+        email,
+        password,
+        phoneNumber: phoneNumber ? phoneNumberPrefix + phoneNumber : phoneNumber,
+      })
+    );
+  };
 
-      await dispatch(
-        signUpUser({
-          login,
-          username,
-          email,
-          password,
-          phoneNumber: phoneNumber ? phoneNumberPrefix + phoneNumber : phoneNumber,
-        })
-      );
-
-      await modalApi.success({
+  useEffect(() => {
+    if (isLoaded) {
+      modalApi.success({
         title: 'Вы успешно зарегестрированы!',
         content: (
           <Typography.Paragraph>
@@ -57,41 +59,19 @@ export const SignUpPage = () => {
           </Typography.Paragraph>
         ),
       });
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [isLoaded]);
 
   useEffect(() => {
-    switch (error?.status) {
-      case 400:
-        notificationApi.error({
-          title: `Ошибка ${error.code}`,
-          description: 'Неправильный ввод полей',
-          placement: 'bottomRight',
-        });
-
-        break;
-      case 409:
-        form.setFields([
-          {
-            name: 'email',
-            errors: ['Этот email или логин уже зарегистрированы'],
-          },
-          {
-            name: 'login',
-            errors: ['Этот логин или email уже зарегистрированы'],
-          },
-        ]);
-
-        break;
-      case 500:
-        notificationApi.error({
-          title: `Ошибка ${error.code}`,
-          description: error.message,
-          placement: 'bottomRight',
-        });
+    if (!error) {
+      return;
     }
+
+    notificationApi.error({
+      title: `Ошибка`,
+      description: 'Не удалось создать акканут',
+      placement: 'bottomRight',
+    });
   }, [error]);
 
   return (
@@ -208,7 +188,7 @@ export const SignUpPage = () => {
       <Divider />
       <Flex justify="center" gap={8}>
         <Typography.Paragraph>Уже зарегистрированы?</Typography.Paragraph>
-        <NavLink to={'/user/login'}>Войти</NavLink>
+        <NavLink to={'/user/signin'}>Войти</NavLink>
       </Flex>
       {contextHolder}
     </>

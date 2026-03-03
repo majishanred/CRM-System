@@ -1,13 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { addAsyncBuilderCases, initAsyncParticle } from '../utils.ts';
 import {
-  getProfile,
+  getProfileAction,
   initAuthorization,
-  logoutUser,
-  signInUser,
-  signUpUser,
+  logoutUserAction,
+  signInUserAction,
+  signUpUserAction,
 } from '../user/actions.ts';
-import { createTodo, deleteTodo, getTodoListData, updateTodo } from '../todo/actions.ts';
+import {
+  createTodoAction,
+  deleteTodoAction,
+  getTodoListData,
+  updateTodoAction,
+} from '../todo/actions.ts';
 import type { Profile } from '../../types/auth.ts';
 import type { MetaResponse } from '../../types/meta.ts';
 import type { Todo, TodoInfo } from '../../types/todo.ts';
@@ -31,14 +36,14 @@ export const apiSlice = createSlice({
   },
   reducers: {},
   extraReducers: builder => {
-    addAsyncBuilderCases(builder, signInUser, 'signInUser');
-    addAsyncBuilderCases(builder, signUpUser, 'signUpUser');
-    addAsyncBuilderCases(builder, logoutUser, 'logoutUser');
+    addAsyncBuilderCases(builder, signInUserAction, 'signInUser');
+    addAsyncBuilderCases(builder, signUpUserAction, 'signUpUser');
+    addAsyncBuilderCases(builder, logoutUserAction, 'logoutUser');
     addAsyncBuilderCases(builder, getTodoListData, 'getTodoListData');
-    addAsyncBuilderCases(builder, deleteTodo, 'deleteTodo');
-    addAsyncBuilderCases(builder, updateTodo, 'updateTodo');
-    addAsyncBuilderCases(builder, createTodo, 'createTodo');
-    addAsyncBuilderCases(builder, getProfile, 'getProfile');
+    addAsyncBuilderCases(builder, deleteTodoAction, 'deleteTodo');
+    addAsyncBuilderCases(builder, updateTodoAction, 'updateTodo');
+    addAsyncBuilderCases(builder, createTodoAction, 'createTodo');
+    addAsyncBuilderCases(builder, getProfileAction, 'getProfile');
     addAsyncBuilderCases(builder, initAuthorization, 'initAuthorization');
   },
 });

@@ -4,7 +4,7 @@ import { Button, Divider, Flex, Form, Input, Typography } from 'antd';
 import { NavLink, useNavigate } from 'react-router';
 import { useEffect } from 'react';
 import { useNotification } from '../../hooks/useNotification.ts';
-import { signInUser } from '../../store/user/actions.ts';
+import { signInUserAction } from '../../store/user/actions.ts';
 import { useAppDispatch } from '../../store/rootStore.ts';
 import { useSelector } from 'react-redux';
 import { signInUserSelector } from '../../store/api/selectors/user.ts';
@@ -13,50 +13,32 @@ export const SignInPage = () => {
   const [form] = useForm<AuthData>();
   const {
     error,
-    status: { isLoading },
+    status: { isLoading, isLoaded },
   } = useSelector(signInUserSelector);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const notificationApi = useNotification();
 
   const handleSubmit = async (authData: AuthData) => {
-    await dispatch(signInUser(authData));
-    navigate('/');
+    await dispatch(signInUserAction(authData));
   };
 
   useEffect(() => {
-    switch (error?.status) {
-      case 400:
-        form.setFields([
-          {
-            name: 'login',
-            errors: ['Недопустимое значение поля'],
-          },
-          {
-            name: 'password',
-            errors: ['Недопустимое значение поля'],
-          },
-        ]);
-        break;
-      case 401:
-        form.setFields([
-          {
-            name: 'login',
-            errors: ['Неверные логин или пароль'],
-          },
-          {
-            name: 'password',
-            errors: ['Неверные логин или пароль'],
-          },
-        ]);
-        break;
-      case 500:
-        notificationApi.error({
-          title: `Ошибка ${error.code}`,
-          description: error.message,
-          placement: 'bottomRight',
-        });
+    if (isLoaded) {
+      navigate('/');
     }
+  }, [isLoaded]);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+
+    notificationApi.error({
+      title: `Ошибка`,
+      description: 'Не удалось выполнить вход',
+      placement: 'bottomRight',
+    });
   }, [error]);
 
   return (
@@ -100,7 +82,7 @@ export const SignInPage = () => {
       <Divider />
       <Flex justify="center" gap={8}>
         <Typography.Paragraph>Ещё не зарегестрированы?</Typography.Paragraph>
-        <NavLink to={'/user/signin'}>Зарегестрироваться</NavLink>
+        <NavLink to={'/user/signup'}>Зарегестрироваться</NavLink>
       </Flex>
     </>
   );

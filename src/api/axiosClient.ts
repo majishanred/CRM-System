@@ -2,7 +2,7 @@ import axios, { isAxiosError } from 'axios';
 import AuthService from '../services/auth.ts';
 import { rootStore } from '../store/rootStore.ts';
 import { setIsAuthorized } from '../store/user/slice.ts';
-import { refreshAccessToken } from '../store/user/actions.ts';
+import { refreshAccessTokenAction } from '../store/user/actions.ts';
 
 const axiosClient = axios.create({
   baseURL: 'https://easydev.club/api/v1',
@@ -19,13 +19,14 @@ let refreshProcess: Promise<void> | null = null;
 
 axiosClient.interceptors.response.use(undefined, async err => {
   const originalConfig = err.config;
+
   if (!isAxiosError(err)) throw err;
 
   if (err.response?.status !== 401) {
     throw err;
   }
 
-  if (originalConfig.url === '/auth/refresh') {
+  if (originalConfig.url === '/auth/refresh' || originalConfig.url === '/auth/signin') {
     rootStore.dispatch(setIsAuthorized(false));
     AuthService.clearTokens();
     throw err;
@@ -34,7 +35,7 @@ axiosClient.interceptors.response.use(undefined, async err => {
   if (!refreshProcess) {
     refreshProcess = new Promise((resolve, reject) => {
       rootStore
-        .dispatch(refreshAccessToken())
+        .dispatch(refreshAccessTokenAction())
         .then(() => {
           resolve();
           rootStore.dispatch(setIsAuthorized(true));

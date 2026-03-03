@@ -6,7 +6,7 @@ import { useForm } from 'antd/es/form/Form';
 import { CheckOutlined, CloseOutlined, DeleteFilled, EditFilled } from '@ant-design/icons';
 import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../const/todo.ts';
 import { useAppDispatch } from '../../store/rootStore.ts';
-import { deleteTodo, updateTodo } from '../../store/todo/actions.ts';
+import { deleteTodoAction, updateTodoAction } from '../../store/todo/actions.ts';
 import { useSelector } from 'react-redux';
 import { deleteTodoSelector, updateTodoSelector } from '../../store/api/selectors/todo.ts';
 import { useNotification } from '../../hooks/useNotification.ts';
@@ -27,7 +27,7 @@ export const ToDo = ({ todo, updateTodoData }: Props) => {
   const onTodoChange = async ({ title }: { title: string }) => {
     const data: TodoRequest = { ...todo, title };
 
-    await dispatch(updateTodo({ todoId: todo.id, todoData: data }));
+    await dispatch(updateTodoAction({ todoId: todo.id, todoData: data }));
     await updateTodoData();
     setIsEditing(false);
   };
@@ -35,12 +35,12 @@ export const ToDo = ({ todo, updateTodoData }: Props) => {
   const onTodoStatusChange = async () => {
     const data = { ...todo, isDone: !todo.isDone };
 
-    await dispatch(updateTodo({ todoId: todo.id, todoData: data }));
+    await dispatch(updateTodoAction({ todoId: todo.id, todoData: data }));
     await updateTodoData();
   };
 
   const onTodoDelete = async () => {
-    await dispatch(deleteTodo(todo.id));
+    await dispatch(deleteTodoAction(todo.id));
     await updateTodoData();
   };
 
