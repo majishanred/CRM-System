@@ -1,9 +1,12 @@
 import type { TodoRequest } from '../../types/todo.ts';
-import { createTodo } from '../../api/todo/todo.ts';
 import { Button, Form, Input } from 'antd';
 import { useForm } from 'antd/es/form/Form';
-import { isAxiosError } from 'axios';
 import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../const/todo.ts';
+import { useAppDispatch } from '../../store/rootStore.ts';
+import { createTodoAction } from '../../store/todo/actions.ts';
+import { useSelector } from 'react-redux';
+import { createTodoSelector } from '../../store/api/selectors/todo.ts';
+import { useEffect } from 'react';
 import { useNotification } from '../../hooks/useNotification.ts';
 
 type Props = {
@@ -12,23 +15,25 @@ type Props = {
 
 export const CreateTodoForm = ({ updateTodoData }: Props) => {
   const [form] = useForm<TodoRequest>();
+  const dispatch = useAppDispatch();
+  const { error } = useSelector(createTodoSelector);
   const notificationApi = useNotification();
 
   const onFormSubmit = async (todoData: TodoRequest) => {
-    try {
-      await createTodo(todoData);
-      await updateTodoData();
-      form.resetFields();
-    } catch (error) {
-      if (isAxiosError(error)) {
-        notificationApi.error({
-          title: `Ошибка ${error.code}`,
-          description: error.message,
-          placement: 'bottomRight',
-        });
-      }
-    }
+    await dispatch(createTodoAction(todoData));
+    await updateTodoData();
+    form.resetFields();
   };
+
+  useEffect(() => {
+    if (!error) return;
+
+    notificationApi.error({
+      title: `Ошибка ${error.code}`,
+      description: error.message,
+      placement: 'bottomRight',
+    });
+  }, [error]);
 
   return (
     <Form
