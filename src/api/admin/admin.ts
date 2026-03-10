@@ -1,11 +1,12 @@
 import axiosClient from '../axiosClient.ts';
 import {
   type MetaResponse,
-  Roles,
   type User,
   type UserFilters,
   type UserRequest,
+  type UserRolesRequest,
 } from '../../types/admin.ts';
+import type { AxiosResponse } from 'axios';
 
 export const getUsers = async (filters?: UserFilters): Promise<MetaResponse<User>> => {
   const response = await axiosClient.get<MetaResponse<User>>('/admin/users', {
@@ -23,7 +24,10 @@ export const updateUserProfile = async (
   userId: number,
   profileData: UserRequest
 ): Promise<User> => {
-  const response = await axiosClient.put(`/admin/users/${userId}`, profileData);
+  const response = await axiosClient.put<User, AxiosResponse<User>, UserRequest>(
+    `/admin/users/${userId}`,
+    profileData
+  );
   return response.data;
 };
 
@@ -33,9 +37,12 @@ export const deleteUser = async (userId: number): Promise<void> => {
 
 export const changeUserRights = async (
   userId: number,
-  userRolesData: { roles: Roles[] }
+  userRolesData: UserRolesRequest
 ): Promise<void> => {
-  await axiosClient.post(`/admin/users/${userId}/rights`, userRolesData);
+  await axiosClient.post<void, void, UserRolesRequest>(
+    `/admin/users/${userId}/rights`,
+    userRolesData
+  );
 };
 
 export const blockUser = async (userId: number): Promise<void> => {

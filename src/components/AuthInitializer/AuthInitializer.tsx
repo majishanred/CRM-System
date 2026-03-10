@@ -12,7 +12,7 @@ export const AuthInitializer = ({ children }: PropsWithChildren) => {
     dispatch(initAuthorization());
   }, []);
 
-  if (status === 'pending') return null;
+  if (status === 'pending' || status === 'idle') return null;
 
   return <>{children}</>;
 };

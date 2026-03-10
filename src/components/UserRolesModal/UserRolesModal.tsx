@@ -4,10 +4,21 @@ import { Roles, type User } from '../../types/admin.ts';
 type Props = {
   chosenUser: User;
   setChosenUser: (user: User | null) => void;
-  onOk: () => Promise<void>;
+  onSubmit: () => Promise<void>;
 };
 
-export const UserRolesModal = ({ chosenUser, setChosenUser, onOk }: Props) => {
+const mappedRoles = Object.values(Roles).map(value => {
+  return {
+    value: value,
+    label: value,
+  };
+});
+
+export const UserRolesModal = ({ chosenUser, setChosenUser, onSubmit }: Props) => {
+  const handleChangeRoles = (value: Roles[]): void => {
+    setChosenUser({ ...chosenUser, roles: value });
+  };
+
   return (
     <Modal
       open={!!chosenUser}
@@ -16,7 +27,12 @@ export const UserRolesModal = ({ chosenUser, setChosenUser, onOk }: Props) => {
         <Tooltip
           title={chosenUser.roles.length < 1 && 'У пользователя должна быть минимум одна роль'}
         >
-          <Button key="submit" type="primary" disabled={chosenUser.roles.length < 1} onClick={onOk}>
+          <Button
+            key="submit"
+            type="primary"
+            disabled={chosenUser.roles.length < 1}
+            onClick={onSubmit}
+          >
             Ок
           </Button>
         </Tooltip>,
@@ -31,14 +47,9 @@ export const UserRolesModal = ({ chosenUser, setChosenUser, onOk }: Props) => {
         allowClear={chosenUser.roles.length > 1}
         placeholder="Выберите роли пользователя"
         defaultValue={chosenUser.roles}
-        options={Object.values(Roles).map(value => {
-          return {
-            value: value,
-            label: value,
-          };
-        })}
+        options={mappedRoles}
         style={{ width: '100%' }}
-        onChange={(value: Roles[]) => setChosenUser({ ...chosenUser, roles: value })}
+        onChange={handleChangeRoles}
       />
     </Modal>
   );

@@ -1,9 +1,8 @@
 import type { Profile, ProfileRequest } from '../../types/auth.ts';
 import { type PropsWithChildren, useEffect } from 'react';
 import { Flex, Form, Input, Typography } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import {
-  USER_PHONE_NUMBER_PATTERN,
+  PROFILE_CARD_PHONE_NUMBER_PATTERN,
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
   USERNAME_PATTERN,
@@ -11,19 +10,19 @@ import {
 
 type Props = {
   profile?: Profile | null;
-  onFinish: (profileData: ProfileRequest) => Promise<void>;
+  onFinish?: (profileData: ProfileRequest) => Promise<void>;
   onResetCallback?: () => void;
-  disabled?: boolean;
+  isDisabled?: boolean;
 };
 
 export const ProfileCard = ({
   profile,
   onFinish,
   onResetCallback,
-  disabled,
+  isDisabled,
   children,
 }: PropsWithChildren<Props>) => {
-  const [form] = useForm<ProfileRequest>();
+  const [form] = Form.useForm<ProfileRequest>();
 
   const onFormReset = () => {
     form.resetFields();
@@ -38,8 +37,6 @@ export const ProfileCard = ({
     });
   }, [profile]);
 
-  console.log(new RegExp('^(?:\\\\+?7|8)' + USER_PHONE_NUMBER_PATTERN));
-
   return (
     <Flex gap="8px" orientation="vertical" flex={1}>
       <Flex justify="center" style={{ marginBottom: '24px' }}>
@@ -53,7 +50,7 @@ export const ProfileCard = ({
         }}
         onFinish={onFinish}
         onReset={onFormReset}
-        disabled={disabled}
+        disabled={isDisabled}
         form={form}
         labelAlign="left"
         style={{ width: '100%' }}
@@ -90,7 +87,7 @@ export const ProfileCard = ({
           label="Номер телефона"
           rules={[
             {
-              pattern: /^(?:\+?7|8)\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/,
+              pattern: PROFILE_CARD_PHONE_NUMBER_PATTERN,
               message: 'Введите корректный номер телефона',
             },
           ]}

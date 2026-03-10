@@ -36,13 +36,7 @@ export const ProfilePage = () => {
 
   return (
     <Flex className="profile-page_container" orientation="vertical">
-      <ProfileCard
-        profile={profile}
-        onFinish={async () => {
-          return;
-        }}
-        disabled={true}
-      />
+      <ProfileCard profile={profile} isDisabled={true} />
       <Button type="primary" onClick={handleLogout} style={{ width: '100%', marginTop: '16px' }}>
         Выйти
       </Button>

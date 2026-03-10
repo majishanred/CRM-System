@@ -47,7 +47,7 @@ export const EditUserPage = () => {
       if (!error) return;
 
       notificationApi.error({
-        title: 'Прозошла ошибка',
+        title: 'Произошла ошибка',
         description: 'Попробуйте позже',
         placement: 'bottomRight',
       });
@@ -60,7 +60,7 @@ export const EditUserPage = () => {
         profile={userProfileData}
         onFinish={handleUpdateUser}
         onResetCallback={() => setIsEditState(false)}
-        disabled={!isEditState}
+        isDisabled={!isEditState}
       >
         {isEditState && (
           <>

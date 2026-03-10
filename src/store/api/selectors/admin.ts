@@ -13,7 +13,7 @@ export const getUserSelector = createSelector(apiSelector, (state: ApiStore) =>
 );
 
 export const updateUserProfileSelector = createSelector(apiSelector, (state: ApiStore) =>
-  getAsyncRequestData(state.updateUserProfile)
+  getAsyncRequestData<User | null>(state.updateUserProfile)
 );
 
 export const deleteUserSelector = createSelector(apiSelector, (state: ApiStore) =>

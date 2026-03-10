@@ -11,10 +11,10 @@ import {
 import type { TSliceMethod } from '../types.ts';
 import {
   type MetaResponse,
-  Roles,
   type User,
   type UserFilters,
   type UserRequest,
+  type UserRolesRequest,
 } from '../../types/admin.ts';
 
 export const getUsersAction: TSliceMethod<
@@ -66,9 +66,9 @@ export const deleteUserAction: TSliceMethod<number, void> = createAsyncThunk<voi
 );
 
 export const changeUserRightsAction: TSliceMethod<
-  { userId: number; userRolesData: { roles: Roles[] } },
+  { userId: number; userRolesData: UserRolesRequest },
   void
-> = createAsyncThunk<void, { userId: number; userRolesData: { roles: Roles[] } }>(
+> = createAsyncThunk<void, { userId: number; userRolesData: UserRolesRequest }>(
   'admin/changeUserRights',
   async ({ userId, userRolesData }, thunkAPI) => {
     try {
@@ -91,7 +91,7 @@ export const blockUserAction: TSliceMethod<number, void> = createAsyncThunk<void
 );
 
 export const unblockUserAction: TSliceMethod<number, void> = createAsyncThunk<void, number>(
-  'admin/unlbockUser',
+  'admin/unblockUser',
   async (userId, thunkAPI) => {
     try {
       await unblockUser(userId);

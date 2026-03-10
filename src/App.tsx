@@ -12,7 +12,7 @@ import { WithUnauthorizedRedirect } from './components/WithUnauthorizedRedirect/
 import { AuthInitializer } from './components/AuthInitializer/AuthInitializer.tsx';
 import { UsersPage } from './pages/UsersPage/UsersPage.tsx';
 import { EditUserPage } from './pages/EditUserPage/EditUserPage.tsx';
-import EditUserLayout from './layouts/UserEditLayout/EditUserLayout.tsx';
+import EditUserLayout from './layouts/EditUserLayout/EditUserLayout.tsx';
 import { WithoutAdminRightsRedirect } from './components/WithoutAdminRightsRedirect/WithoutAdminRightsRedirect.tsx';
 
 const router = createBrowserRouter([
@@ -25,22 +25,22 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        Component: ToDoPage,
+        element: <ToDoPage />,
       },
       {
         path: '/profile',
-        Component: ProfilePage,
+        element: <ProfilePage />,
       },
     ],
   },
   {
-    Component: AuthLayout,
+    element: <AuthLayout />,
     children: [
       {
         path: '/user/signup',
-        Component: SignUpPage,
+        element: <SignUpPage />,
       },
-      { path: '/user/signin', Component: SignInPage },
+      { path: '/user/signin', element: <SignInPage /> },
     ],
   },
   {
@@ -57,7 +57,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: 'users',
-            Component: UsersPage,
+            element: <UsersPage />,
           },
         ],
       },
@@ -76,7 +76,7 @@ const router = createBrowserRouter([
             loader: ({ params }) => {
               return { userId: params.id };
             },
-            Component: EditUserPage,
+            element: <EditUserPage />,
           },
         ],
       },

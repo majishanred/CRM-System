@@ -1,6 +1,5 @@
 import type { TodoRequest } from '../../types/todo.ts';
 import { Button, Form, Input } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../const/todo.ts';
 import { useAppDispatch } from '../../store/rootStore.ts';
 import { createTodoAction } from '../../store/todo/actions.ts';
@@ -14,7 +13,7 @@ type Props = {
 };
 
 export const CreateTodoForm = ({ updateTodoData }: Props) => {
-  const [form] = useForm<TodoRequest>();
+  const [form] = Form.useForm<TodoRequest>();
   const dispatch = useAppDispatch();
   const { error } = useSelector(createTodoSelector);
   const notificationApi = useNotification();

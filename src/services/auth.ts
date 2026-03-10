@@ -30,6 +30,11 @@ class Auth {
   set accessToken(accessToken: string) {
     this._accessToken = accessToken;
 
+    if (!this._accessToken) {
+      this._roles = [];
+      return;
+    }
+
     const { isAdmin: roles } = decodeJwt<{ isAdmin: Roles[] }>(this.accessToken);
 
     this._roles = roles;

@@ -1,14 +1,12 @@
 import './MainLayout.scss';
 import { NavLink, Outlet, useLocation } from 'react-router';
 import { Layout, Menu, Typography } from 'antd';
-import { Content, Header } from 'antd/es/layout/layout';
-import Sider from 'antd/es/layout/Sider';
 import type { MenuItemType } from 'antd/es/menu/interface';
 import { ControlOutlined, UnorderedListOutlined, UserOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { userSelector } from '../../store/user/selectors.ts';
 
-const items: MenuItemType[] = [
+const siderNavigationItems: MenuItemType[] = [
   {
     key: '/',
     label: <NavLink to={'/'}>Список задач</NavLink>,
@@ -26,7 +24,7 @@ export const MainLayout = () => {
   const { isAdmin } = useSelector(userSelector);
 
   const navigationElements: MenuItemType[] = [
-    ...items,
+    ...siderNavigationItems,
     ...(isAdmin
       ? [
           {
@@ -40,7 +38,7 @@ export const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider theme="light">
+      <Layout.Sider theme="light">
         <div style={{ padding: '12px' }}>
           <Typography.Title level={2}>Навигация</Typography.Title>
         </div>
@@ -50,19 +48,19 @@ export const MainLayout = () => {
           mode="inline"
           items={navigationElements}
         />
-      </Sider>
+      </Layout.Sider>
       <Layout>
-        <Header
+        <Layout.Header
           style={{
             placeItems: 'center',
             backgroundColor: 'var(--ant-layout-color-bg-body)',
           }}
         >
           <Typography.Title level={1}>ToDo List</Typography.Title>
-        </Header>
-        <Content>
+        </Layout.Header>
+        <Layout.Content>
           <Outlet />
-        </Content>
+        </Layout.Content>
       </Layout>
     </Layout>
   );

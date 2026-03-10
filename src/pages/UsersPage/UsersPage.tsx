@@ -337,7 +337,7 @@ export const UsersPage = () => {
         <UserRolesModal
           chosenUser={chosenUser}
           setChosenUser={setChosenUser}
-          onOk={handleUserRolesUpdate}
+          onSubmit={handleUserRolesUpdate}
         />
       )}
     </>
