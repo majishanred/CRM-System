@@ -1,8 +1,11 @@
 import type { Token } from '../types/auth.ts';
+import { Roles } from '../types/admin.ts';
+import { decodeJwt } from 'jose';
 
 class Auth {
   private _accessToken: string;
   private _refreshToken: string;
+  private _roles: Roles[] = [];
 
   constructor() {
     this._refreshToken = localStorage.getItem('refreshToken') || '';
@@ -26,6 +29,19 @@ class Auth {
 
   set accessToken(accessToken: string) {
     this._accessToken = accessToken;
+
+    if (!this._accessToken) {
+      this._roles = [];
+      return;
+    }
+
+    const { isAdmin: roles } = decodeJwt<{ isAdmin: Roles[] }>(this.accessToken);
+
+    this._roles = roles;
+  }
+
+  get roles() {
+    return this._roles;
   }
 
   get refreshToken(): string {

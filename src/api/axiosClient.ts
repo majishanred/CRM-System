@@ -26,7 +26,11 @@ axiosClient.interceptors.response.use(undefined, async err => {
     throw err;
   }
 
-  if (originalConfig.url === '/auth/refresh' || originalConfig.url === '/auth/signin') {
+  if (
+    originalConfig.url === '/auth/refresh' ||
+    originalConfig.url === '/auth/signin' ||
+    originalConfig.url === '/user/logout'
+  ) {
     rootStore.dispatch(setIsAuthorized(false));
     AuthService.clearTokens();
     throw err;

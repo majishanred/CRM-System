@@ -10,6 +10,7 @@ import { deleteTodoAction, updateTodoAction } from '../../store/todo/actions.ts'
 import { useSelector } from 'react-redux';
 import { deleteTodoSelector, updateTodoSelector } from '../../store/api/selectors/todo.ts';
 import { useNotification } from '../../hooks/useNotification.ts';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   todo: Todo;
@@ -17,6 +18,7 @@ type Props = {
 };
 
 export const ToDo = ({ todo, updateTodoData }: Props) => {
+  const { t } = useTranslation();
   const [form] = useForm<{ title: string }>();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const dispatch = useAppDispatch();
@@ -72,11 +74,17 @@ export const ToDo = ({ todo, updateTodoData }: Props) => {
           <Form.Item
             name="title"
             rules={[
-              { required: true, message: 'Введите название задачи' },
-              { min: TODO_TITLE_MIN_LENGTH, message: 'Минимальное количество символов - 2' },
-              { max: TODO_TITLE_MAX_LENGTH, message: 'Максимальное количество символов - 64' },
+              { required: true, message: `${t('Enter todos name')}` },
               {
-                message: 'Текст задачи не может состоять только из пробелов',
+                min: TODO_TITLE_MIN_LENGTH,
+                message: `${t('Minimal symbols amount')} - ${TODO_TITLE_MIN_LENGTH}`,
+              },
+              {
+                max: TODO_TITLE_MAX_LENGTH,
+                message: `${t('Maximal symbols amount')} - ${TODO_TITLE_MAX_LENGTH}`,
+              },
+              {
+                message: `${t('Space only not allowed')}`,
                 whitespace: true,
               },
             ]}

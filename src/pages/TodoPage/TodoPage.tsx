@@ -8,8 +8,10 @@ import { useSelector } from 'react-redux';
 import { getTodoListSelector } from '../../store/api/selectors/todo.ts';
 import { useAppDispatch } from '../../store/rootStore.ts';
 import { getTodoListData } from '../../store/todo/actions.ts';
+import { useTranslation } from 'react-i18next';
 
 export const ToDoPage = () => {
+  const { t } = useTranslation();
   const { data: todoData, error } = useSelector(getTodoListSelector);
   const dispatch = useAppDispatch();
   const notificationApi = useNotification();
@@ -17,17 +19,17 @@ export const ToDoPage = () => {
   const tabs: { key: string; label: string; filter: TodoFilterParams }[] = [
     {
       key: '0',
-      label: `Все (${todoData?.info?.all || 0})`,
+      label: `${t('All todos')} (${todoData?.info?.all || 0})`,
       filter: 'all',
     },
     {
       key: '1',
-      label: `В работе (${todoData?.info?.inWork || 0})`,
+      label: `${t('In progress')} (${todoData?.info?.inWork || 0})`,
       filter: 'inWork',
     },
     {
       key: '2',
-      label: `Сделано (${todoData?.info?.completed || 0})`,
+      label: `${t('Completed todos')} (${todoData?.info?.completed || 0})`,
       filter: 'completed',
     },
   ];

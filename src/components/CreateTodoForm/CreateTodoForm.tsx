@@ -1,6 +1,5 @@
 import type { TodoRequest } from '../../types/todo.ts';
 import { Button, Form, Input } from 'antd';
-import { useForm } from 'antd/es/form/Form';
 import { TODO_TITLE_MAX_LENGTH, TODO_TITLE_MIN_LENGTH } from '../../const/todo.ts';
 import { useAppDispatch } from '../../store/rootStore.ts';
 import { createTodoAction } from '../../store/todo/actions.ts';
@@ -8,13 +7,15 @@ import { useSelector } from 'react-redux';
 import { createTodoSelector } from '../../store/api/selectors/todo.ts';
 import { useEffect } from 'react';
 import { useNotification } from '../../hooks/useNotification.ts';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   updateTodoData: () => Promise<void>;
 };
 
 export const CreateTodoForm = ({ updateTodoData }: Props) => {
-  const [form] = useForm<TodoRequest>();
+  const { t } = useTranslation();
+  const [form] = Form.useForm<TodoRequest>();
   const dispatch = useAppDispatch();
   const { error } = useSelector(createTodoSelector);
   const notificationApi = useNotification();
@@ -58,22 +59,28 @@ export const CreateTodoForm = ({ updateTodoData }: Props) => {
       <Form.Item
         name="title"
         rules={[
-          { required: true, message: 'Введите название задачи' },
-          { min: TODO_TITLE_MIN_LENGTH, message: 'Минимальное количество символов - 2' },
-          { max: TODO_TITLE_MAX_LENGTH, message: 'Максимальное количество символов - 64' },
+          { required: true, message: `${t('Enter todos name')}` },
           {
-            message: 'Текст задачи не может состоять только из пробелов',
+            min: TODO_TITLE_MIN_LENGTH,
+            message: `${t('Minimal symbols amount')} - ${TODO_TITLE_MIN_LENGTH}`,
+          },
+          {
+            max: TODO_TITLE_MAX_LENGTH,
+            message: `${t('Maximal symbols amount')} - ${TODO_TITLE_MAX_LENGTH}`,
+          },
+          {
+            message: `${t('Space only not allowed')}`,
             whitespace: true,
           },
         ]}
         validateTrigger={'onSubmit'}
         style={{ flex: 1 }}
       >
-        <Input type="text" id="taskTitle" placeholder="Введите название задачи" />
+        <Input type="text" id="taskTitle" placeholder={t('Enter todo name')} />
       </Form.Item>
       <Form.Item noStyle>
         <Button htmlType="submit" type="primary">
-          Создать задачу
+          {t('Create Todo')}
         </Button>
       </Form.Item>
     </Form>

@@ -10,6 +10,12 @@ import { rootStore } from './store/rootStore.ts';
 import { Provider } from 'react-redux';
 import { WithUnauthorizedRedirect } from './components/WithUnauthorizedRedirect/WithUnauthorizedRedirect.tsx';
 import { AuthInitializer } from './components/AuthInitializer/AuthInitializer.tsx';
+import { UsersPage } from './pages/UsersPage/UsersPage.tsx';
+import { EditUserPage } from './pages/EditUserPage/EditUserPage.tsx';
+import { WithoutAdminRightsRedirect } from './components/WithoutAdminRightsRedirect/WithoutAdminRightsRedirect.tsx';
+import { Roles } from './types/admin.ts';
+
+import './locales/init.ts';
 
 const router = createBrowserRouter([
   {
@@ -21,22 +27,57 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        Component: ToDoPage,
+        element: <ToDoPage />,
       },
       {
         path: '/profile',
-        Component: ProfilePage,
+        element: <ProfilePage />,
       },
     ],
   },
   {
-    Component: AuthLayout,
+    element: <AuthLayout />,
     children: [
       {
         path: '/user/signup',
-        Component: SignUpPage,
+        element: <SignUpPage />,
       },
-      { path: '/user/signin', Component: SignInPage },
+      { path: '/user/signin', element: <SignInPage /> },
+    ],
+  },
+  {
+    path: '/admin',
+    children: [
+      {
+        element: (
+          <WithUnauthorizedRedirect>
+            <WithoutAdminRightsRedirect checkRoles={roles => roles.includes(Roles.ADMIN)}>
+              <MainLayout />
+            </WithoutAdminRightsRedirect>
+          </WithUnauthorizedRedirect>
+        ),
+        children: [
+          {
+            path: 'users',
+            element: <UsersPage />,
+          },
+        ],
+      },
+      {
+        path: 'user/:id',
+        children: [
+          {
+            index: true,
+            element: (
+              <WithUnauthorizedRedirect>
+                <WithoutAdminRightsRedirect checkRoles={roles => roles.includes(Roles.ADMIN)}>
+                  <EditUserPage />
+                </WithoutAdminRightsRedirect>
+              </WithUnauthorizedRedirect>
+            ),
+          },
+        ],
+      },
     ],
   },
 ]);

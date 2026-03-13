@@ -1,7 +1,7 @@
 import type { AuthData, Profile, UserRegistration } from '../../types/auth.ts';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import AuthService from '../../services/auth.ts';
-import { setIsAuthorized } from '../user/slice.ts';
+import { setIsAuthorized, setUserRoles } from '../user/slice.ts';
 import { AxiosError, isAxiosError } from 'axios';
 import type { TSliceMethod } from '../types.ts';
 import { refreshAccessToken, signInUser, signUpUser } from '../../api/user/auth.ts';
@@ -23,8 +23,11 @@ export const signInUserAction: TSliceMethod<AuthData, void> = createAsyncThunk<v
   async (loginData, thunkAPI) => {
     try {
       const { accessToken, refreshToken } = await signInUser(loginData);
+
       AuthService.authorize({ accessToken, refreshToken });
+
       thunkAPI.dispatch(setIsAuthorized(true));
+      thunkAPI.dispatch(setUserRoles(AuthService.roles));
     } catch (error) {
       return thunkAPI.rejectWithValue(JSON.stringify(error));
     }
@@ -70,7 +73,10 @@ export const initAuthorization: TSliceMethod<void, void> = createAsyncThunk<void
       });
 
       AuthService.authorize(tokens);
+
       thunkAPI.dispatch(setIsAuthorized(true));
+
+      thunkAPI.dispatch(setUserRoles(AuthService.roles));
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 401) {
         AuthService.clearTokens();
@@ -83,7 +89,7 @@ export const initAuthorization: TSliceMethod<void, void> = createAsyncThunk<void
 
 export const refreshAccessTokenAction: TSliceMethod<void, void> = createAsyncThunk<void, void>(
   'user/refreshAccessToken',
-  async () => {
+  async (_, thunkAPI) => {
     const { accessToken, refreshToken } = await refreshAccessToken({
       refreshToken: AuthService.refreshToken,
     });
@@ -93,5 +99,6 @@ export const refreshAccessTokenAction: TSliceMethod<void, void> = createAsyncThu
     }
 
     AuthService.authorize({ accessToken, refreshToken });
+    thunkAPI.dispatch(setUserRoles(AuthService.roles));
   }
 );
