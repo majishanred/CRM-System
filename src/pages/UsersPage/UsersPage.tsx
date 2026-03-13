@@ -16,7 +16,7 @@ import {
 import { NavLink } from 'react-router';
 import { useNotification } from '../../hooks/useNotification.ts';
 import type { FilterValue, SorterResult, SortOrder } from 'antd/es/table/interface';
-import { FilterFilled } from '@ant-design/icons';
+import { EllipsisOutlined, FilterFilled } from '@ant-design/icons';
 import Dropdown from 'antd/es/dropdown/dropdown';
 import { useSelector } from 'react-redux';
 import {
@@ -186,29 +186,32 @@ export const UsersPage = () => {
           await updateUsers();
         };
 
+        const items = [
+          <NavLink to={`/admin/user/${user.id}`}>
+            <Button type="text">Перейти к профилю</Button>
+          </NavLink>,
+          <Button type="text" onClick={handleDeleteUser}>
+            Удалить пользователя
+          </Button>,
+          <Button type="text" onClick={handleChooseUser}>
+            Управление ролями пользователя
+          </Button>,
+          <Button type="text" onClick={handleBlockUser}>
+            {user.isBlocked ? 'Разблокировать' : 'Заблокировать'}
+          </Button>,
+        ].map((item, index) => {
+          return {
+            key: index.toString(),
+            label: item,
+          };
+        });
+
         return (
-          <List itemLayout="vertical">
-            <List.Item>
-              <NavLink to={`/admin/user/${user.id}`}>
-                <Button type="text">Перейти к профилю</Button>
-              </NavLink>
-            </List.Item>
-            <List.Item>
-              <Button type="text" onClick={handleDeleteUser}>
-                Удалить пользователя
-              </Button>
-            </List.Item>
-            <List.Item>
-              <Button type="text" onClick={handleChooseUser}>
-                Управление ролями пользователя
-              </Button>
-            </List.Item>
-            <List.Item>
-              <Button type="text" onClick={handleBlockUser}>
-                {user.isBlocked ? 'Разблокировать' : 'Заблокировать'}
-              </Button>
-            </List.Item>
-          </List>
+          <>
+            <Dropdown menu={{ items }} placement="bottomRight" arrow>
+              <Button type="text" icon={<EllipsisOutlined style={{ fontSize: '20px' }} />} />
+            </Dropdown>
+          </>
         );
       },
     },

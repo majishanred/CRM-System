@@ -40,8 +40,8 @@ class Auth {
     this._roles = roles;
   }
 
-  get isAdmin() {
-    return this._roles.includes(Roles.ADMIN || Roles.MODERATOR);
+  get roles() {
+    return this._roles;
   }
 
   get refreshToken(): string {

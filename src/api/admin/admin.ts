@@ -1,15 +1,15 @@
 import axiosClient from '../axiosClient.ts';
 import {
-  type MetaResponse,
   type User,
   type UserFilters,
   type UserRequest,
   type UserRolesRequest,
 } from '../../types/admin.ts';
 import type { AxiosResponse } from 'axios';
+import type { MetaResponse } from '../../types/meta.ts';
 
-export const getUsers = async (filters?: UserFilters): Promise<MetaResponse<User>> => {
-  const response = await axiosClient.get<MetaResponse<User>>('/admin/users', {
+export const getUsers = async (filters?: UserFilters): Promise<MetaResponse<User, null>> => {
+  const response = await axiosClient.get<MetaResponse<User, null>>('/admin/users', {
     params: filters,
   });
   return response.data;

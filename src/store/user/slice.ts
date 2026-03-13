@@ -1,21 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit';
+import type { Roles } from '../../types/admin.ts';
 
 export const userSlice = createSlice({
   name: 'user',
   initialState: {
     isAuthorized: false,
-    isAdmin: false,
+    userRoles: [] as Roles[],
   },
   reducers: {
     setIsAuthorized: (state, action: { payload: boolean }) => {
       state.isAuthorized = action.payload;
     },
-    setIsUserAdmin: (state, { payload }) => {
-      state.isAdmin = payload;
+    setUserRoles: (state, { payload }) => {
+      state.userRoles = payload;
     },
   },
 });
 
 export type UserStore = ReturnType<typeof userSlice.reducer>;
 
-export const { setIsAuthorized, setIsUserAdmin } = userSlice.actions;
+export const { setIsAuthorized, setUserRoles } = userSlice.actions;

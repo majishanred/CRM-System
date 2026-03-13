@@ -25,7 +25,7 @@ import {
   unblockUserAction,
   updateUserAction,
 } from '../admin/actions.ts';
-import type { User, MetaResponse as AdminMetaResponse } from '../../types/admin.ts';
+import type { User } from '../../types/admin.ts';
 
 export const apiSlice = createSlice({
   name: 'api',
@@ -43,7 +43,7 @@ export const apiSlice = createSlice({
     updateTodo: initAsyncParticle(null),
     createTodo: initAsyncParticle(null),
     initAuthorization: initAsyncParticle(null),
-    getUsers: initAsyncParticle<AdminMetaResponse<User> | null>(null),
+    getUsers: initAsyncParticle<MetaResponse<User, null> | null>(null),
     getUser: initAsyncParticle<User | null>(null),
     updateUserProfile: initAsyncParticle<User | null>(null),
     deleteUser: initAsyncParticle(null),

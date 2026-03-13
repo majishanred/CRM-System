@@ -12,8 +12,10 @@ import { WithUnauthorizedRedirect } from './components/WithUnauthorizedRedirect/
 import { AuthInitializer } from './components/AuthInitializer/AuthInitializer.tsx';
 import { UsersPage } from './pages/UsersPage/UsersPage.tsx';
 import { EditUserPage } from './pages/EditUserPage/EditUserPage.tsx';
-import EditUserLayout from './layouts/EditUserLayout/EditUserLayout.tsx';
 import { WithoutAdminRightsRedirect } from './components/WithoutAdminRightsRedirect/WithoutAdminRightsRedirect.tsx';
+import { Roles } from './types/admin.ts';
+
+import './locales/init.ts';
 
 const router = createBrowserRouter([
   {
@@ -49,7 +51,7 @@ const router = createBrowserRouter([
       {
         element: (
           <WithUnauthorizedRedirect>
-            <WithoutAdminRightsRedirect>
+            <WithoutAdminRightsRedirect checkRoles={roles => roles.includes(Roles.ADMIN)}>
               <MainLayout />
             </WithoutAdminRightsRedirect>
           </WithUnauthorizedRedirect>
@@ -62,21 +64,17 @@ const router = createBrowserRouter([
         ],
       },
       {
-        element: (
-          <WithUnauthorizedRedirect>
-            <WithoutAdminRightsRedirect>
-              <EditUserLayout />
-            </WithoutAdminRightsRedirect>
-          </WithUnauthorizedRedirect>
-        ),
         path: 'user/:id',
         children: [
           {
             index: true,
-            loader: ({ params }) => {
-              return { userId: params.id };
-            },
-            element: <EditUserPage />,
+            element: (
+              <WithUnauthorizedRedirect>
+                <WithoutAdminRightsRedirect checkRoles={roles => roles.includes(Roles.ADMIN)}>
+                  <EditUserPage />
+                </WithoutAdminRightsRedirect>
+              </WithUnauthorizedRedirect>
+            ),
           },
         ],
       },

@@ -17,24 +17,13 @@ export interface User {
   phoneNumber: string;
 }
 
-export interface MetaResponse<T> {
-  data: T[];
-  meta: {
-    totalAmount: number;
-    sortBy: string;
-    sortOrder: 'asc' | 'desc';
-  };
-}
-
 export interface UserRolesRequest {
   roles: Roles[];
 }
 
-export interface UserRequest {
-  username?: string;
-  email?: string;
-  phoneNumber?: string;
-}
+export type UserRequest = {
+  [Key in keyof Pick<User, 'username' | 'email' | 'phoneNumber'>]+?: User[Key];
+};
 
 export enum Roles {
   ADMIN = 'ADMIN',

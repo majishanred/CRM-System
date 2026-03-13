@@ -10,17 +10,17 @@ import {
 } from '../../api/admin/admin.ts';
 import type { TSliceMethod } from '../types.ts';
 import {
-  type MetaResponse,
   type User,
   type UserFilters,
   type UserRequest,
   type UserRolesRequest,
 } from '../../types/admin.ts';
+import type { MetaResponse } from '../../types/meta.ts';
 
 export const getUsersAction: TSliceMethod<
   UserFilters | undefined,
-  MetaResponse<User>
-> = createAsyncThunk<MetaResponse<User>, UserFilters | undefined>(
+  MetaResponse<User, null>
+> = createAsyncThunk<MetaResponse<User, null>, UserFilters | undefined>(
   'admin/getUsers',
   async (filters, thunkAPI) => {
     try {

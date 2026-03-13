@@ -1,5 +1,5 @@
 import './ProfilePage.scss';
-import { ProfileCard } from '../../components/ProfileCard/ProfileCard.tsx';
+import { ProfileForm } from '../../components/ProfileForm/ProfileForm.tsx';
 import { Button, Flex } from 'antd';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../../store/rootStore.ts';
@@ -36,7 +36,7 @@ export const ProfilePage = () => {
 
   return (
     <Flex className="profile-page_container" orientation="vertical">
-      <ProfileCard profile={profile} isDisabled={true} />
+      <ProfileForm profile={profile} isDisabled={true} />
       <Button type="primary" onClick={handleLogout} style={{ width: '100%', marginTop: '16px' }}>
         Выйти
       </Button>

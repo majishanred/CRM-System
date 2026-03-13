@@ -15,7 +15,7 @@ type Props = {
   isDisabled?: boolean;
 };
 
-export const ProfileCard = ({
+export const ProfileForm = ({
   profile,
   onFinish,
   onResetCallback,
@@ -60,8 +60,14 @@ export const ProfileCard = ({
           label="Имя пользователя"
           required={false}
           rules={[
-            { min: USERNAME_MIN_LENGTH, message: 'Минимальная длинна - 1 символ' },
-            { max: USERNAME_MAX_LENGTH, message: 'Минимальная длинна - 60 символов' },
+            {
+              min: USERNAME_MIN_LENGTH,
+              message: `Минимальная длинна - ${USERNAME_MIN_LENGTH} символ`,
+            },
+            {
+              max: USERNAME_MAX_LENGTH,
+              message: `Минимальная длинна - ${USERNAME_MAX_LENGTH} символов`,
+            },
             { required: true, message: 'Поле обязательно' },
             {
               pattern: USERNAME_PATTERN,

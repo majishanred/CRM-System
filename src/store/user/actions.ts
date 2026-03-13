@@ -1,7 +1,7 @@
 import type { AuthData, Profile, UserRegistration } from '../../types/auth.ts';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import AuthService from '../../services/auth.ts';
-import { setIsAuthorized, setIsUserAdmin } from '../user/slice.ts';
+import { setIsAuthorized, setUserRoles } from '../user/slice.ts';
 import { AxiosError, isAxiosError } from 'axios';
 import type { TSliceMethod } from '../types.ts';
 import { refreshAccessToken, signInUser, signUpUser } from '../../api/user/auth.ts';
@@ -27,12 +27,7 @@ export const signInUserAction: TSliceMethod<AuthData, void> = createAsyncThunk<v
       AuthService.authorize({ accessToken, refreshToken });
 
       thunkAPI.dispatch(setIsAuthorized(true));
-
-      if (AuthService.isAdmin) {
-        thunkAPI.dispatch(setIsUserAdmin(true));
-      } else {
-        thunkAPI.dispatch(setIsUserAdmin(false));
-      }
+      thunkAPI.dispatch(setUserRoles(AuthService.roles));
     } catch (error) {
       return thunkAPI.rejectWithValue(JSON.stringify(error));
     }
@@ -81,11 +76,7 @@ export const initAuthorization: TSliceMethod<void, void> = createAsyncThunk<void
 
       thunkAPI.dispatch(setIsAuthorized(true));
 
-      if (AuthService.isAdmin) {
-        thunkAPI.dispatch(setIsUserAdmin(true));
-      } else {
-        thunkAPI.dispatch(setIsUserAdmin(false));
-      }
+      thunkAPI.dispatch(setUserRoles(AuthService.roles));
     } catch (error) {
       if (isAxiosError(error) && error.response?.status === 401) {
         AuthService.clearTokens();
@@ -108,11 +99,6 @@ export const refreshAccessTokenAction: TSliceMethod<void, void> = createAsyncThu
     }
 
     AuthService.authorize({ accessToken, refreshToken });
-
-    if (AuthService.isAdmin) {
-      thunkAPI.dispatch(setIsUserAdmin(true));
-    } else {
-      thunkAPI.dispatch(setIsUserAdmin(false));
-    }
+    thunkAPI.dispatch(setUserRoles(AuthService.roles));
   }
 );
